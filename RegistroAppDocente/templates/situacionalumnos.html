@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Situación de Alumnos</title>
+    <!-- Agrega los enlaces necesarios, como Bootstrap y SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/listadodecursos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="../css/footer.css">
+
+</head>
+<nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="index.html">
+        <img src="../img/LogoPNG.png" alt="Logo de mi sitio web">
+    </a>
+    <a class="btn btn-secondary ml-2" href="../html/index.html">Volver atrás</a>
+</nav>
+<body>
+    <div class="container mt-5">
+        <h1>Situación de Alumnos</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Foto</th>
+                    <th scope="col">Nombre del Alumno</th>
+                    <th scope="col">Curso</th>
+                    <th scope="col">% de Asistencia</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><img src="../img/fotodefault.png" class="rounded-circle" width="55"></td>
+                    <td>Alumno 1</td>
+                    <td>Curso A</td>
+                    <td class="asistencia-baja">55%</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="reprobarAlumno()">Reprobar por Inasistencia</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="../img/fotodefault.png" class="rounded-circle" width="55"></td>
+                    <td>Alumno 2</td>
+                    <td>Curso B</td>
+                    <td>70%</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="reprobarAlumno()">Reprobar por Inasistencia</button>
+                    </td>
+                </tr>
+                <!-- Agrega más filas para más alumnos si es necesario -->
+            </tbody>
+        </table>
+    </div>    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../js/scriptsgenerales.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+
+.navbar {
+    border-bottom: 2px solid #000000; 
+}
+
+.navbar img {
+    max-width: 100px; 
+    margin-right: 10px; 
+}
+
+
+.container {
+    margin-top: 2rem; 
+}
+
+h1 {
+    color: #000000;
+    text-align: center;
+}
+
+.table {
+    background-color: #ffffff; 
+    margin: 20px; 
+    border: 2px solid #000000;
+    
+}
+
+.table th {
+    background-color: #000000; 
+    color: #ffffff; 
+}
+
+.table td {
+    background-color: #f8f9fa;
+    font-weight: bold; 
+}
+
+.btn-secondary {
+    background-color: #000000; 
+    color: #ffffff; 
+}
+
+.btn-secondary:hover {
+    background-color: #333333; 
+}

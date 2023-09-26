@@ -1,0 +1,116 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Registro de Asistencia</title>
+    <!-- Enlaces a los archivos CSS de Bootstrap a través de BootstrapCDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/index.css'%}">
+    <link rel="stylesheet" href="{% static 'css/footer.css'%}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+</head>
+<body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <img src="{% static 'img/LogoPNG.png'%}" alt="Logo de mi sitio web">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+
+            </li>
+          </ul>
+          
+        </div>
+        <a class="btn btn-outline-danger" href="javascript:void(0)" id="cerrarSesion">
+            <span id="botonTexto" onclick="logout()">Cerrar Sesión</span>
+            <span id="animacionCarga" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+        </a>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="container-fluid mt-5">
+        <div class="row">
+            <!-- Menú lateral -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="listadodecursos.html">
+                                Lista de Cursos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="listadoasistencia.html">
+                                Listado de Asistencia
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="situacionalumnos.html">
+                                Situación de los Alumnos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="comunicado.html">
+                                Generar Comunicado
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="notas.html">
+                                Modificar Notas
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Contenido de la página -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" id="dashboard-content">
+                <!-- Título del dashboard -->
+                <h1 class="mt-3 dashboard-title">Bienvenido, Profesor X</h1>
+                <!-- Texto de bienvenida -->
+                <p>Selecciona una opción del menú lateral para comenzar.</p>
+            </main>
+            
+        </div>
+    </div>
+    <div class="footer-dark">
+        <footer>
+            <div class="containerrr">
+                <div class="row">
+                    <div class="col-sm-6 col-md-3 item">
+                        <h3>Servicios</h3>
+                        <ul>
+                            <li><a href="listadodecursos.html">Lista de Cursos</a></li>
+                            <li><a href="listadoasistencia.html">Listado de Asistencia</a></li>
+                            <li><a href="situacionalumnos.html">Situacion de los alumnos</a></li>
+                            <li><a href="comunicado.html">Generar Comunicado</a></li>
+                            <li><a href="notas.html">Modificar Notas</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6 col-md-3 item">
+                        <h3>Acerca de</h3>
+                        <ul>
+                            <li><a href="https://www.duoc.cl/sedes/puente-alto/">Duoc UC Puente Alto</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6 item text">
+                        <h3>Registra App</h3>
+                        <p>Registra App WEB es una aplicación web diseñada para facilitar el seguimiento de la asistencia de los alumnos por parte de los profesores de manera eficiente y conveniente. Con esta aplicación, los profesores pueden llevar un registro preciso de la asistencia de sus estudiantes de manera rápida y sencilla.</p>
+                    </div>
+                    <div class="col item social"><a href="https://www.facebook.com/cittduoc.uc/?locale=es_LA"><i class="icon ion-social-facebook"></i></a><a href="https://www.instagram.com/cittduocuc/?hl=es-la"><i class="icon ion-social-instagram"></i></a></div>
+                </div>
+                <p class="copyright">© 2023 Registra App.</p>
+            </div>
+        </footer>
+    </div>    
+
+    <!-- Inclusión de Bootstrap JS a través de BootstrapCDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/scriptsgenerales.js'%}"></script>
+</body>
+</html>

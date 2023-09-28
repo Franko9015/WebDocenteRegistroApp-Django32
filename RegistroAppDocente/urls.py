@@ -9,8 +9,15 @@ from .views import *
 #path('formulario/',formulario,name='FORMU'),
 
 urlpatterns = [
-    path('',login,name='login'),
-    path('dashboard/',index,name='index'),
-    path('asistencia/',asistencia,name='asistencia'),
-    path('listaalumnos/',listaalumnos,name='alumnosl'),
+    path('',login,name='LOG'),
+    path('dashboard/',index,name='IND'),
+    path('asistencia/',asistencia,name='ASIS'),
+    path('listaalumnos/',listaalumnos,name='LALU'),
+    path('anotaciones/',anotaciones,name='ANOT'),
+    path('comunicados/',comunicado,name='COM'),
+    path('listacursos/',listacursos,name='LCUR'),
+    path('modificarnotas/',modificarnotas,name='MODN'),
+    path('situacionalumnos/',situacionalumnos,name='SISA'),
+    path('notas/',notas,name='NON'),
+    path('listaasistencia/',listaasistencia,name='LASIS')
 ]

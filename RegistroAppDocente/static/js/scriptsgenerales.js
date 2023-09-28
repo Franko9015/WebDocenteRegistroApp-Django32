@@ -14,7 +14,7 @@ function terminarClase() {
             if (result.isConfirmed) {
                 Swal.fire('Clase finalizada con éxito', '', 'success').then(() => {
                     // Redirecciona a otra página cuando se confirma la terminación de la clase
-                    window.location.href = 'listadoasistencia.html';
+                    window.location.href = "{%url 'LASIS'%}";
                 });
             }
         });
@@ -40,7 +40,7 @@ function logout() {
         // Simula una pausa de 2 segundos (2000 milisegundos)
         setTimeout(function () {
             // Redirige al usuario a la página de inicio de sesión
-            window.location.href = " ";
+            window.location.href = "{% url'LOG' %}";
         }, 2000);
     });
 }

@@ -27,5 +27,19 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     <script src="{%static 'js/scriptsgenerales.js'%}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Asigna las URL a variables JavaScript
+        var loginURL = "{% url 'LOG' %}";
+        var dashboardURL = "{% url 'IND' %}";
+        var asistenciaURL = "{% url 'ASIS' %}";
+        var listaalumnosURL = "{% url 'LALU' %}";
+        var listaasistenciaURL = "{% url 'LASIS' %}";
+        var listacursosURL = "{% url 'LCUR' %}";
+        var modificarnotasURL = "{% url 'MODN' %}";
+        var notasURL = "{% url 'NON' %}";
+        var situacionalumnosURL = "{% url 'SISA' %}";
+        var anotacionesURL = "{% url 'ANOT' %}";
+        var comunicadoURL = "{% url 'COM' %}";
+    </script>
 </body>
 </html>

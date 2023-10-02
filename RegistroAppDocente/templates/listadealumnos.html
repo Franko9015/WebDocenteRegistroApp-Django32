@@ -25,7 +25,8 @@
                     <td>25</td>
                     <td>85%</td>
                     <td>
-                        <a class="btn btn-info" href="anotaciones.html">Anotación</a>
+                        <!-- Redirección a la página de anotaciones para John -->
+                        <a class="btn btn-info" href="{% url 'ANOT' %}">Anotación</a>
                     </td>
                 </tr>
                 <tr>
@@ -34,13 +35,15 @@
                     <td>23</td>
                     <td>90%</td>
                     <td>
-                        <a class="btn btn-info" href="anotaciones.html">Anotación </a>
+                        <!-- Redirección a la página de anotaciones para Jane -->
+                        <a class="btn btn-info" href="{% url 'ANOT' %}">Anotación</a>
                     </td>
                 </tr>
                 <!-- Agrega más filas para más alumnos si es necesario -->
             </tbody>
         </table>
     </div>
+
 {% endblock contenedor %}
 
 {% block js %}

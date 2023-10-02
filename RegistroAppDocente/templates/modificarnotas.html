@@ -1,28 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modificación de Notas</title>
-    <!-- Enlaces a los archivos CSS de Bootstrap a través de BootstrapCDN -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../css/modificarnotas.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+{% extends "base3.html" %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/modificarnotas.css'%}">
+{% endblock css %}
 
-    <!-- Estilos personalizados -->
-    <style>
-        .notas-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-    </style>
-</head>
-<nav class="navbar navbar-light bg-light">
-    <a class="navbar-brand" href="index.html">
-        <img src="../img/LogoPNG.png" alt="Logo de mi sitio web">
-    </a>
-    <a class="btn btn-secondary ml-2" href="../html/index.html">Volver atrás</a>
-</nav>
+{% block contenedor %}
 <body>
     <div class="container mt-5 notas-container">
         <h1>Modificación de Notas</h1>
@@ -84,6 +66,7 @@
         <td><button class="btn btn-primary" onclick="guardarCambiosNotas()">Guardar Cambios</button></td>
     </div>
     <br>
+    {% endblock contenedor %}
     <div class="footer-dark">
         <footer>
             <div class="containerrr">

@@ -32,7 +32,7 @@ function validarFormulario() {
       setTimeout(function () {
           // Ocultar la animación y redireccionar al usuario
           loginAnimation.style.display = 'none';
-          window.location.href = "{% url'IND' %}"; // Redirecciona al index.html
+          window.location.href = "dashboard/"; // Redirecciona al index.html
       }, 3000); // 3000 milisegundos (3 segundos)
   }
 }

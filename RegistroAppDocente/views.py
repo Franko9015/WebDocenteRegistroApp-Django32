@@ -1,5 +1,7 @@
 from django.shortcuts import render
-
+import qrcode
+from django.http import HttpResponse
+from io import BytesIO
 
 # Create your views here.
 def login(request):
@@ -24,3 +26,4 @@ def anotaciones(request):
     return render(request,"anotaciones.html")
 def comunicado(request):
     return render(request,"comunicado.html")
+    

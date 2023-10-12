@@ -1,0 +1,40 @@
+{% extends "base3.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Historial de Comunicados</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Título</th>
+                <th scope="col">Fecha de Envío</th>
+                <th scope="col">Tipo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for comunicado in comunicados %}
+            <tr data-toggle="collapse" data-target="#comunicado-{{ comunicado.id }}" class="accordion-toggle">
+                <td>{{ comunicado.titulo }}</td>
+                <td>{{ comunicado.fecha_envio }}</td>
+                <td>
+                    {% if comunicado.es_urgente %}
+                    <span style="color: red;">Urgente</span>
+                    {% else %}
+                    General
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <div class="accordian-body collapse" id="comunicado-{{ comunicado.id }}">
+                        {{ comunicado.contenido }}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

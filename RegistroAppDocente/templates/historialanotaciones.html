@@ -1,0 +1,24 @@
+{% extends "base2.html" %}
+{% % load static %}
+{% block content %}
+    <h1>Historial de Anotaciones del Alumno</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tipo</th>
+                <th>Fecha de Creación</th>
+                <th>Contenido</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for anotacion in anotaciones %}
+            <tr>
+                <td>{{ anotacion.get_tipo_display }}</td>
+                <td>{{ anotacion.fecha_creacion }}</td>
+                <td>{{ anotacion.contenido }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'perfil_alumno' alumno_id %}">Volver al Perfil del Alumno</a>
+{% endblock %}

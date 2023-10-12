@@ -26,4 +26,9 @@ def anotaciones(request):
     return render(request,"anotaciones.html")
 def comunicado(request):
     return render(request,"comunicado.html")
-    
+def perfilprofesor(request):
+    return render(request,"PerfilProfesor.html")
+def historialanotaciones(request):
+    return render(request,"historialanotaciones.html")
+def historialcomunicados(request):
+    return render(request,"historialdecomunicados.html")

@@ -19,5 +19,7 @@ urlpatterns = [
     path('modificarnotas/',modificarnotas,name='MODN'),
     path('situacionalumnos/',situacionalumnos,name='SISA'),
     path('notas/',notas,name='NON'),
-    path('listaasistencia/',listaasistencia,name='LASIS')
+    path('listaasistencia/',listaasistencia,name='LASIS'),
+    path('historialcomunicados/',historialcomunicados,name="HSC"),
+    path('historialanotaciones/',historialanotaciones,name="HAN"),
 ]

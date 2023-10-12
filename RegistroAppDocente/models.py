@@ -1,6 +1,16 @@
 from django.db import models
-
 # Create your models here.
+
+class Curso(models.Model):
+    nombrecurso = models.CharField(max_length=100)
+    aniocurso = models.IntegerField(blank=True, null=True)
+    cantidadalumnos = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'Curso'
+
+    def __str__(self):
+        return self.nombrecurso
 
 class Materia(models.Model):
     nombre = models.CharField(max_length=50)
@@ -12,10 +22,12 @@ class Materia(models.Model):
         return self.nombre
 
 class Alumno(models.Model):
+    username = models.CharField(max_length=100, null=True)
     nombres = models.CharField(max_length=100)
     apellidoP = models.CharField(max_length=100)
     apellidoM = models.CharField(max_length=100)
     fecha_nacimiento = models.DateField(null=True, blank=True)
+    foto_alumno = models.ImageField(upload_to='foto', null=True, blank=True, default='foto/fotodefault.png')
     curso = models.ForeignKey('Curso', on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
     asistencias = models.PositiveIntegerField(default=0)
@@ -35,10 +47,11 @@ class Alumno(models.Model):
 
 
 class Profesor(models.Model):
+    username = models.CharField(max_length=100, null=True)
     nombres = models.CharField(max_length=100)
     apellidoP = models.CharField(max_length=100)
     apellidoM = models.CharField(max_length=100)
-    foto_perfil = models.ImageField(upload_to='perfil_profesor', null=True, blank=True)
+    foto_perfil = models.ImageField(upload_to='foto', null=True, blank=True, default='foto/fotodefault.png')
     cursos = models.ManyToManyField(Curso)
     titulo = models.CharField(max_length=100)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
@@ -69,10 +82,39 @@ class Notas(models.Model):
         return f'Notas de {self.alumno.nombres} {self.alumno.apellidoP} {self.alumno.apellidoM}'
 
 class Comunicado(models.Model):
+    URGENTE = 'U'
+    GENERAL = 'G'
+    
+    TIPO_COMUNICADO_CHOICES = [
+        (URGENTE, 'Urgente'),
+        (GENERAL, 'General'),
+    ]
+    
     titulo = models.CharField(max_length=200)
     contenido = models.TextField()
     fecha_envio = models.DateTimeField(auto_now_add=True)
-    es_urgente = models.BooleanField(default=False)  # Campo booleano para indicar si es urgente
+    tipo_comunicado = models.CharField(
+        max_length=1,
+        choices=TIPO_COMUNICADO_CHOICES,
+        default=GENERAL
+    )
 
     def __str__(self):
         return self.titulo
+
+class Anotacion(models.Model):
+    TIPO_ANOTACION = (
+        ('bitacora', 'Bitácora'),
+        ('anotacion negativa', 'Anotación Negativa'),
+    )
+
+    alumno = models.ForeignKey(Alumno, on_delete=models.CASCADE)
+    tipo_anotacion = models.CharField(max_length=20, choices=TIPO_ANOTACION)
+    fecha = models.DateField(auto_now=True)
+    comentario = models.TextField()
+
+    class Meta:
+        db_table = 'anotacion'
+
+    def __str__(self):
+        return f'Anotación para {self.alumno.nombres} {self.alumno.apellidoP} ({self.tipo_anotacion})'

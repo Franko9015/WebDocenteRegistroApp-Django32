@@ -49,7 +49,7 @@
                             <li><a href="{%url 'LCUR' %}">Lista de Cursos</a></li>
                             <li><a href="{%url 'LASIS' %}">Listado de Asistencia</a></li>
                             <li><a href="{%url 'SISA' %}">Situacion de los alumnos</a></li>
-                            <li><a href="{%url 'COM'%}">Generar Comunicado</a></li>
+                            <li><a href="{%url 'comunicado'%}">Generar Comunicado</a></li>
                             <li><a href="{%url 'MODN'%}">Modificar Notas</a></li>
                         </ul>
                     </div>
@@ -75,8 +75,13 @@
 
 {% endblock js %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/scriptsgenerales.js'%}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <script>
     // Asigna las URL a variables JavaScript
     var loginURL = "{% url 'LOG' %}";
@@ -89,7 +94,10 @@
     var notasURL = "{% url 'NON' %}";
     var situacionalumnosURL = "{% url 'SISA' %}";
     var anotacionesURL = "{% url 'ANOT' %}";
-    var comunicadoURL = "{% url 'COM' %}";
+    var comunicadoURL = "{% url 'comunicado' %}";
+    var historialcomunicadosURL = "{% url 'HSC' %}";  // Agregado para el historial de comunicados
+    var historialanotacionesURL = "{% url 'HAN' %}";  // URL sin argumento de 'username'
+    var perfilURL = "{% url 'PF' %}";  // Agregado para el perfil con el nombre de usuario
 </script>
   
 

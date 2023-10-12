@@ -1,12 +1,12 @@
 {% extends "base3.html" %}
 {% load static %}
 
-{% block content %}
+{% block contenedor %}
 <div class="container mt-5">
     <h1>Historial de Comunicados</h1>
 
-    <table class="table">
-        <thead>
+    <table class="table table-striped table-dark">
+        <thead class="thead-light">
             <tr>
                 <th scope="col">Título</th>
                 <th scope="col">Fecha de Envío</th>
@@ -15,20 +15,28 @@
         </thead>
         <tbody>
             {% for comunicado in comunicados %}
-            <tr data-toggle="collapse" data-target="#comunicado-{{ comunicado.id }}" class="accordion-toggle">
-                <td>{{ comunicado.titulo }}</td>
+            <tr>
+                <td>
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#comunicado-{{ comunicado.id }}" aria-expanded="false">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    {{ comunicado.titulo }}
+                </td>
                 <td>{{ comunicado.fecha_envio }}</td>
                 <td>
-                    {% if comunicado.es_urgente %}
-                    <span style="color: red;">Urgente</span>
+                    {% if comunicado.tipo_comunicado == 'U' %}
+                    <span class="badge badge-danger">Urgente</span>
                     {% else %}
-                    General
+                    <span class="badge badge-info">General</span>
                     {% endif %}
                 </td>
             </tr>
             <tr>
                 <td colspan="3">
-                    <div class="accordian-body collapse" id="comunicado-{{ comunicado.id }}">
+                    <button type="button" data-toggle="collapse" data-target="#comunicado-{{ comunicado.id }}" aria-expanded="false">
+                        Mostrar Contenido
+                    </button>
+                    <div class="accordion-body collapse" id="comunicado-{{ comunicado.id }}">
                         {{ comunicado.contenido }}
                     </div>
                 </td>
@@ -37,4 +45,6 @@
         </tbody>
     </table>
 </div>
-{% endblock content %}
+{% endblock contenedor %}
+
+

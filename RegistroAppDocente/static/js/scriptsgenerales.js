@@ -1,3 +1,20 @@
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Buscar la cookie que comienza con el nombre proporcionado
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
 // Esta función se llama cuando se termina una clase
 function terminarClase() {
     const radios = document.querySelectorAll('input[type="radio"]');
@@ -83,8 +100,9 @@ function enviarComunicado() {
         showCancelButton: true,
         confirmButtonText: 'Sí, enviar',
         cancelButtonText: 'Cancelar'
-    }).then(async (result) => {
+    }).then((result) => {
         if (result.isConfirmed) {
+            // Mostrar un mensaje de carga mientras se envía
             Swal.fire({
                 title: 'Enviando comunicado...',
                 icon: 'info',
@@ -92,15 +110,43 @@ function enviarComunicado() {
                 allowOutsideClick: false
             });
 
-            setTimeout(() => {
-                Swal.fire('Comunicado enviado con éxito', '', 'success').then(() => {
-                    // Redirige al dashboard
-                    window.location.href = dashboardURL;
-                });
-            }, 3000); // Simula un envío de 3 segundos
+            // Datos del comunicado
+            const data = {
+                tipoComunicado: tipoComunicado,
+                titulo: tituloComunicado,
+                contenido: mensaje
+            };
+
+            // Enviar solicitud AJAX al servidor de Django
+            fetch('/comunicados/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(data)
+            })            
+            .then(response => {
+                if (response.ok) {
+                    // Comunicado enviado con éxito
+                    Swal.fire('Comunicado enviado con éxito', '', 'success').then(() => {
+                        // Redirige al dashboard
+                        window.location.href = dashboardURL;
+                    });
+                } else {
+                    // Error al enviar el comunicado
+                    Swal.fire('Error', 'Hubo un error al enviar el comunicado.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Hubo un error al enviar el comunicado.', 'error');
+            });
         }
     });
 }
+
+
 
 // Esta función está relacionada con la limpieza del formulario de comunicados
 function limpiarFormulario() {

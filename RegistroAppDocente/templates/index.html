@@ -25,13 +25,23 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{%url 'COM'%}">
+                            <a class="nav-link" href="{%url 'comunicado' %}">
                                 Generar Comunicado
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{%url 'NON'%}">
                                 Modificar Notas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'HSC' %}">
+                                Historial de Comunicados  <!-- Agregado -->
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'HAN' %}">
+                                Historial de Anotaciones  <!-- Agregado -->
                             </a>
                         </li>
                     </ul>
@@ -41,7 +51,9 @@
             <!-- Contenido de la página -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" id="dashboard-content">
                 <!-- Título del dashboard -->
-                <h1 class="mt-3 dashboard-title">Bienvenido, Profesor X</h1>
+                <h1 class="mt-3 dashboard-title">
+                    Bienvenido, Profesor {% if user.is_authenticated %}{{ user.get_full_name }}{% else %}X{% endif %}
+                </h1>                
                 <!-- Texto de bienvenida -->
                 <p>Selecciona una opción del menú lateral para comenzar.</p>
             </main>

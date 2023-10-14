@@ -19,27 +19,19 @@
                 </tr>
             </thead>
             <tbody>
+                {% for alumno in alumnos %}
                 <tr>
-                    <td>John</td>
-                    <td>Doe</td>
-                    <td>25</td>
-                    <td>85%</td>
+                    <td>{{ alumno.nombres }}</td>
+                    <td>{{ alumno.apellidoP }} {{ alumno.apellidoM }}</td>
+                    <td>{{ alumno.edad }}</td>
+                    <td>{{ alumno.calcular_porcentaje_asistencia }}%</td>
                     <td>
-                        <!-- Redirección a la página de anotaciones para John -->
-                        <a class="btn btn-info" href="{% url 'ANOT' %}">Anotación</a>
+                        <!-- Redirección a la página de anotaciones para el alumno -->
+                        <a class="btn btn-info" href="{% url 'anotaciones' alumno.id %}">Anotación</a>
+
                     </td>
                 </tr>
-                <tr>
-                    <td>Jane</td>
-                    <td>Smith</td>
-                    <td>23</td>
-                    <td>90%</td>
-                    <td>
-                        <!-- Redirección a la página de anotaciones para Jane -->
-                        <a class="btn btn-info" href="{% url 'ANOT' %}">Anotación</a>
-                    </td>
-                </tr>
-                <!-- Agrega más filas para más alumnos si es necesario -->
+                {% endfor %}
             </tbody>
         </table>
     </div>

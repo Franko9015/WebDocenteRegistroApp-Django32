@@ -85,6 +85,7 @@ function iniciarClase() {
 
 // Esta función está relacionada con el envío de comunicados
 function enviarComunicado() {
+    // Obtén los valores de los campos
     const tipoComunicado = document.getElementById('tipoComunicado').value;
     const tituloComunicado = document.getElementById('tituloComunicado').value;
     const mensaje = document.getElementById('mensaje').value;
@@ -94,6 +95,7 @@ function enviarComunicado() {
         return;
     }
 
+    // Mostrar una alerta de confirmación
     Swal.fire({
         title: '¿Estás seguro de enviar el comunicado?',
         icon: 'question',
@@ -114,39 +116,28 @@ function enviarComunicado() {
             const data = {
                 tipoComunicado: tipoComunicado,
                 titulo: tituloComunicado,
-                contenido: mensaje
+                contenido: mensaje,
+                csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
             };
 
-            // Enviar solicitud AJAX al servidor de Django
-            fetch('/comunicados/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify(data)
-            })            
-            .then(response => {
-                if (response.ok) {
-                    // Comunicado enviado con éxito
+            // Realiza la solicitud POST solo si el usuario confirma
+            $.ajax({
+                type: 'POST',
+                url: comunicadoURL,
+                data: data,
+                success: function () {
                     Swal.fire('Comunicado enviado con éxito', '', 'success').then(() => {
-                        // Redirige al dashboard
+                        // Redirige al dashboard después de enviar
                         window.location.href = dashboardURL;
                     });
-                } else {
-                    // Error al enviar el comunicado
-                    Swal.fire('Error', 'Hubo un error al enviar el comunicado.', 'error');
+                },
+                error: function () {
+                    Swal.fire('Error', 'No se pudo enviar el comunicado', 'error');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire('Error', 'Hubo un error al enviar el comunicado.', 'error');
             });
         }
     });
 }
-
-
 
 // Esta función está relacionada con la limpieza del formulario de comunicados
 function limpiarFormulario() {
@@ -210,38 +201,51 @@ function reprobarAlumno() {
 }
 
 function confirmarAnotacion() {
+    const anotacionesURL = document.querySelector('[data-anotaciones-url]').getAttribute('data-anotaciones-url');
+    const listacursosURL = document.querySelector('[data-listacursos-url]').getAttribute('data-listacursos-url');
+
     // Obtén los valores de los campos
-    const curso = document.getElementById('curso').value;
-    const nombre = document.getElementById('nombre').value;
-    const apellido = document.getElementById('apellido').value;
     const tipoAnotacion = document.getElementById('tipoAnotacion').value;
     const comentario = document.getElementById('comentario').value;
 
     // Verifica si algún campo está vacío
-    if (curso === '' || nombre === '' || apellido === '' || tipoAnotacion === '' || comentario === '') {
+    if (tipoAnotacion === '' || comentario === '') {
         Swal.fire('Error', 'Todos los campos deben estar llenos', 'error');
     } else {
-        Swal.fire({
-            title: '¿Estás seguro de generar esta anotación?',
-            text: 'Esta acción no se puede deshacer.',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, generar anotación',
-            cancelButtonText: 'Cancelar',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                anotarAlumno(); // Llama a la función para generar la anotación
+        // Realiza una solicitud POST para guardar la anotación
+        $.ajax({
+            type: 'POST',
+            url: anotacionesURL,
+            data: $('#Formulario').serialize(),
+            success: function () {
+                Swal.fire('Anotación generada con éxito', '', 'success').then(() => {
+                    // Redirecciona a la página de cursos después de guardar
+                    window.location.href = listacursosURL;
+                });
+            },
+            error: function () {
+                Swal.fire('Error', 'No se pudo guardar la anotación', 'error');
             }
         });
     }
 }
 
-function anotarAlumno() {
-    // Simula una espera de 2 segundos (2000 milisegundos)
-    setTimeout(function () {
-        Swal.fire('Anotación generada con éxito', '', 'success').then(() => {
-            // Redirecciona al listado de cursos después de la simulación de carga
-            window.location.href = listacursosURL;
-        });
-    }, 2000);
-}
+
+
+
+
+// Asigna las URL a variables JavaScript
+var loginURL = "{% url 'LOG' %}";
+var dashboardURL = "{% url 'IND' %}";
+var asistenciaURL = "{% url 'ASIS' %}";
+var listaalumnosURL = "{% url 'LALU' curso.id %}"; 
+var listaasistenciaURL = "{% url 'LASIS' %}";
+var listacursosURL = "{% url 'LCUR' %}";
+var modificarnotasURL = "{% url 'MODN' %}";
+var notasURL = "{% url 'NON' %}";
+var situacionalumnosURL = "{% url 'SISA' %}";
+var anotacionesURL = "/anotaciones/" + alumno.id + "/";
+var comunicadoURL = "{% url 'comunicado' %}";
+var historialcomunicadosURL = "{% url 'HSC' %}";
+var historialanotacionesURL = "{% url 'HAN' %}";
+var perfilURL = "{% url 'PF' %}";

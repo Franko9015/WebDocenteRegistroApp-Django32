@@ -6,6 +6,8 @@ from .forms import ComunicadoForm
 from io import BytesIO
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
+from django.http import JsonResponse
+from django.utils import timezone
 
 # Create your views here.
 def login(request):
@@ -24,14 +26,23 @@ def index(request):
 def asistencia(request):
     return render(request, "asistencia.html")
 
-def listaalumnos(request):
-    return render(request, "listadealumnos.html")
+def listaalumnos(request, curso_id):
+    alumnos = Alumno.objects.filter(curso_id=curso_id)
+    for alumno in alumnos:
+        if alumno.fecha_nacimiento:
+            today = datetime.today()
+            age = today.year - alumno.fecha_nacimiento.year - ((today.month, today.day) < (alumno.fecha_nacimiento.month, alumno.fecha_nacimiento.day))
+            alumno.edad = age
+        else:
+            alumno.edad = None  # Otra opción si no hay fecha de nacimiento registrada
+    return render(request, "listadealumnos.html", {"alumnos": alumnos})
 
 def listaasistencia(request):
     return render(request, "listadoasistencia.html")
 
 def listacursos(request):
-    return render(request, "listadodecursos.html")
+    cursos = Curso.objects.annotate(cantidad_alumnos=models.Count('alumno'))  # Calcula la cantidad de alumnos por curso
+    return render(request, "listadodecursos.html", {'cursos': cursos})
 
 def modificarnotas(request):
     return render(request, "modificarnotas.html")
@@ -42,20 +53,42 @@ def notas(request):
 def situacionalumnos(request):
     return render(request, "situacionalumnos.html")
 
-def anotaciones(request):
-    return render(request, "anotaciones.html")
+def anotaciones(request, alumno_id):
+    # Encuentra el alumno en función del ID
+    try:
+        alumno = Alumno.objects.get(id=alumno_id)
+    except Alumno.DoesNotExist:
+        return render(request, "anotaciones.html", {'error': 'No se encontró al alumno'})
+
+    if request.method == 'POST':
+        tipo_anotacion = request.POST.get('tipoAnotacion')
+        comentario = request.POST.get('comentario')
+
+        # Crea una nueva anotación y guárdala en la base de datos
+        anotacion = Anotacion(alumno=alumno, tipo_anotacion=tipo_anotacion, comentario=comentario)
+        anotacion.save()
+
+        return JsonResponse({'success': True})
+
+    return render(request, "anotaciones.html", {'alumno': alumno})
 
 def comunicado(request):
     if request.method == 'POST':
-        form = ComunicadoForm(request.POST)
-        if form.is_valid():
-            form.save()  # Guarda el comunicado en la base de datos
+        tipoComunicado = request.POST.get('tipoComunicado')
+        titulo = request.POST.get('titulo')
+        contenido = request.POST.get('contenido')
 
-    # Si no es una solicitud POST o el formulario no es válido, simplemente muestra el formulario nuevamente
-    else:
-        form = ComunicadoForm()
+        # Crea un nuevo comunicado y guárdalo en la base de datos
+        comunicado = Comunicado(
+            tipo_comunicado=tipoComunicado,
+            titulo=titulo,
+            contenido=contenido
+        )
+        comunicado.save()
 
-    return render(request, "comunicado.html", {'form': form})
+        return JsonResponse({'success': True})
+
+    return render(request, "comunicado.html", {})
 
 def perfilprofesor(request):
     return render(request, "PerfilProfesor.html")
@@ -70,3 +103,26 @@ def historialcomunicados(request):
     comunicados = Comunicado.objects.all()
     # Recupera todos los comunicados
     return render(request, "historialdecomunicados.html", {'comunicados': comunicados})
+
+def generar_qr(request):
+    # Obtener la fecha actual
+    fecha_asistencia = timezone.now().strftime("%Y-%m-%d")
+
+    # Resto del código para generar el código QR (sin cambios)
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(fecha_asistencia)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    buffer = BytesIO()
+    img.save(buffer)
+    buffer.seek(0)
+
+    response = HttpResponse(buffer.read(), content_type="image/png")
+    return response

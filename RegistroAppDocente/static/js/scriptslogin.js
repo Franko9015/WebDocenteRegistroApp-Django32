@@ -36,3 +36,21 @@ function validarFormulario() {
       }, 3000); // 3000 milisegundos (3 segundos)
   }
 }
+
+
+
+        // Asigna las URL a variables JavaScript
+        var loginURL = "{% url 'LOG' %}";
+        var dashboardURL = "{% url 'IND' %}";
+        var asistenciaURL = "{% url 'ASIS' %}";
+        var listaalumnosURL = "{% url 'LALU' %}";
+        var listaasistenciaURL = "{% url 'LASIS' %}";
+        var listacursosURL = "{% url 'LCUR' %}";
+        var modificarnotasURL = "{% url 'MODN' %}";
+        var notasURL = "{% url 'NON' %}";
+        var situacionalumnosURL = "{% url 'SISA' %}";
+        var anotacionesURL = "{% url 'ANOT' %}";
+        var comunicadoURL = "{% url 'comunicado' %}";
+        var historialcomunicadosURL = "{% url 'HSC' %}";  // Agregado para el historial de comunicados
+        var historialanotacionesURL = "{% url 'HAN' %}";  // URL sin argumento de 'username'
+        var perfilURL = "{% url 'PF' %}";  // Agregado para el perfil con el nombre de usuario

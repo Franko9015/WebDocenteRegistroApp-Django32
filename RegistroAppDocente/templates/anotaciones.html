@@ -10,7 +10,7 @@
     <div class="container mt-5 containerr">
         <h1>Página de Anotación</h1>
         <div class="alert alert-primary" role="alert">
-            <p class="mb-0">Alumno: {{ alumno.nombres }} {{ alumno.apellidoP }} {{ alumno.apellidoM }}</p>
+            <p class="mb-0">Alumno: {{ alumno.usera.first_name }} {{ alumno.usera.last_name }}</p>
         </div>
         <form method="post" id="Formulario">
             {% csrf_token %}

@@ -11,7 +11,7 @@ from .views import *
 urlpatterns = [
     path('',login,name='LOG'),
     path('dashboard/',index,name='IND'),
-    path('asistencia/',asistencia,name='ASIS'),
+    path('asistencia/<int:clase_id>/', asistencia, name='ASIS'),
     path('listaalumnos/<int:curso_id>/', listaalumnos, name='LALU'),
     path('anotaciones/<int:alumno_id>/', anotaciones, name='anotaciones'),
     path('comunicados/', comunicado, name='comunicado'),
@@ -23,6 +23,5 @@ urlpatterns = [
     path('historialcomunicados/', historialcomunicados, name="HSC"),
     path('historialanotaciones/', historialanotaciones, name="HAN"),
     path('Perfil/',perfilprofesor,name='PF'),
-    path('generar-qr/', generar_qr, name='generar_qr'),
 ]
 

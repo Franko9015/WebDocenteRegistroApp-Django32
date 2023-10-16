@@ -231,6 +231,27 @@ function confirmarAnotacion() {
 }
 
 
+function generarCodigosQR(studentIds) {
+    var qrCodesContainer = document.getElementById('qr-codes');
+    qrCodesContainer.innerHTML = ''; // Limpia cualquier código QR existente
+
+    if (studentIds.length === 0) {
+        return; // No hay estudiantes para generar códigos QR
+    }
+
+    studentIds.forEach(function(studentId) {
+        // Crea un nuevo objeto QRious para cada estudiante
+        var qr = new QRious({
+            value: studentId,
+            size: 150 // Ajusta el tamaño del código QR según tus necesidades
+        });
+
+        // Crea un elemento de imagen para el código QR y agrégalo al contenedor
+        var qrImage = document.createElement('img');
+        qrImage.src = qr.toDataURL('image/png');
+        qrCodesContainer.appendChild(qrImage);
+    });
+}
 
 
 

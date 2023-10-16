@@ -2,8 +2,9 @@
 {% load static %}
 
 {% block css %}
-<link rel="stylesheet" href="{%static 'css/anotaciones.css'%}">
+<link rel="stylesheet" href="{% static 'css/anotaciones.css'%}">
 {% endblock css %}
+
 {% block contenedor %}
 <body>
     <div class="container mt-5">
@@ -21,21 +22,19 @@
             <tbody>
                 {% for alumno in alumnos %}
                 <tr>
-                    <td>{{ alumno.nombres }}</td>
-                    <td>{{ alumno.apellidoP }} {{ alumno.apellidoM }}</td>
+                    <td>{{ alumno.usera.first_name }}</td>
+                    <td>{{ alumno.usera.last_name }}</td>
                     <td>{{ alumno.edad }}</td>
                     <td>{{ alumno.calcular_porcentaje_asistencia }}%</td>
                     <td>
                         <!-- Redirección a la página de anotaciones para el alumno -->
                         <a class="btn btn-info" href="{% url 'anotaciones' alumno.id %}">Anotación</a>
-
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-
 {% endblock contenedor %}
 
 {% block js %}

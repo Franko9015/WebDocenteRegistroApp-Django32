@@ -15,7 +15,7 @@
             {% for anotacion in anotaciones %}
             <tr>
                 <td>
-                    {{ anotacion.alumno.nombres }} {{ anotacion.alumno.apellidoP }} {{ anotacion.alumno.apellidoM }}
+                    {{ anotacion.alumno.usera.first_name }} {{ anotacion.alumno.usera.last_name }}
                 </td>
                 <td>{{ anotacion.alumno.curso.nombrecurso }}</td>
                 <td>{{ anotacion.tipo_anotacion }}</td>

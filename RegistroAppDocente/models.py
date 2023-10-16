@@ -1,5 +1,16 @@
 from django.db import models
-# Create your models here.
+from django.contrib.auth.models import User
+
+class PeriodoSemestral(models.Model):
+    nombre = models.CharField(max_length=100)
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+
+    class Meta:
+        db_table = 'periodo_semestral'
+
+    def __str__(self):
+        return self.nombre
 
 class Curso(models.Model):
     nombrecurso = models.CharField(max_length=100)
@@ -21,36 +32,52 @@ class Materia(models.Model):
     def __str__(self):
         return self.nombre
 
+class Clase(models.Model):
+    fecha = models.DateField()
+    periodo_semestral = models.ForeignKey(PeriodoSemestral, on_delete=models.CASCADE)
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
+    materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'clase'
+
+    def __str__(self):
+        return f'Clase del {self.fecha} - {self.curso.nombrecurso} - {self.materia.nombre}'
+
+from django.contrib.auth.models import User
+
 class Alumno(models.Model):
-    username = models.CharField(max_length=100, null=True)
-    nombres = models.CharField(max_length=100)
-    apellidoP = models.CharField(max_length=100)
-    apellidoM = models.CharField(max_length=100)
+    usera = models.OneToOneField(User, on_delete=models.CASCADE, default=None, null=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
     foto_alumno = models.ImageField(upload_to='foto', null=True, blank=True, default='foto/fotodefault.png')
-    curso = models.ForeignKey('Curso', on_delete=models.CASCADE)
-    materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, default=None, null=True)
     asistencias = models.PositiveIntegerField(default=0)
-    clases_programadas = models.PositiveIntegerField(default=0)
     Reprobado = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'alumno'
 
     def __str__(self):
-        return f'{self.nombres} {self.apellidoP} {self.apellidoM}'
+        return str(self.usera)
 
     def calcular_porcentaje_asistencia(self):
-        if self.clases_programadas > 0:
-            return (self.asistencias / self.clases_programadas) * 100
+        # Obtén todas las clases del curso del alumno
+        clases_del_curso = Clase.objects.filter(curso=self.curso)
+        
+        # Filtra las clases en función de la fecha de nacimiento del alumno
+        clases_programadas = clases_del_curso.filter(
+            periodo_semestral__fecha_inicio__lte=self.fecha_nacimiento,
+            periodo_semestral__fecha_fin__gte=self.fecha_nacimiento
+        )
+        
+        total_clases_programadas = clases_programadas.count()
+        if total_clases_programadas > 0:
+            return (self.asistencias / total_clases_programadas) * 100
         return 0
 
 
 class Profesor(models.Model):
-    username = models.CharField(max_length=100, null=True)
-    nombres = models.CharField(max_length=100)
-    apellidoP = models.CharField(max_length=100)
-    apellidoM = models.CharField(max_length=100)
+    userp = models.OneToOneField(User, on_delete=models.CASCADE, default=None, null=True)
     foto_perfil = models.ImageField(upload_to='foto', null=True, blank=True, default='foto/fotodefault.png')
     cursos = models.ManyToManyField(Curso)
     titulo = models.CharField(max_length=100)
@@ -65,7 +92,7 @@ class Profesor(models.Model):
         db_table = 'profesor'
 
     def __str__(self):
-        return f'{self.nombres} {self.apellidoP} {self.apellidoM}'
+        return str(self.userp)
 
 class Notas(models.Model):
     alumno = models.ForeignKey(Alumno, on_delete=models.CASCADE)
@@ -79,7 +106,7 @@ class Notas(models.Model):
         db_table = 'notas'
 
     def __str__(self):
-        return f'Notas de {self.alumno.nombres} {self.alumno.apellidoP} {self.alumno.apellidoM}'
+        return f'Notas de {self.alumno.nombres} {self.alumno.apellidoP} {self.apellidoM}'
 
 class Comunicado(models.Model):
     URGENTE = 'U'

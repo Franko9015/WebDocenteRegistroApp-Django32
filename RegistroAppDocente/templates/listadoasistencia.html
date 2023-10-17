@@ -4,8 +4,8 @@
     <link rel="stylesheet" href="{% static 'css/listadodecursos.css' %}">
 {% endblock css %}
 {% block contenedor %}
-<div class="container mt-5">
-    <h1>Listado de Asistencia</h1>
+    <div class="container mt-5">
+        <h1>Listado de Asistencia</h1>
         <table class="table">
             <thead>
                 <tr>
@@ -22,17 +22,21 @@
                     <td>{{ curso.alumnos }}</td>
                     <td>{{ curso.porcentaje_asistencia }}%</td>
                     <td>
-                        <a href="{% url 'iniciar_clase' curso.clase_id %}" class="btn btn-primary">Empezar clase</a>
+                        <a href="{% url 'ASIS' curso.curso_id %}" class="btn btn-primary">Empezar clase</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-</div>
+    </div>
 {% endblock contenedor %}
 {% block js %}
 
 {% endblock js %}
+
+</body>
+</html>
+
 
 </body>
 </html>

@@ -3,43 +3,26 @@
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/notas.css'%}">
 {% endblock css %}
+
 {% block contenedor %}
 <body>
     <div class="container mt-5">
         <h1>Portal de Notas</h1>
         <div class="row">
+            {% for curso in cursos %}
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Curso A</h5>
-                        <p class="card-text" style="color: black;">Descripción del Curso A.</p>
-                        <p class="card-text" style="color: black;">Profesor: Nombre del Profesor A.</p>
-                        <a href="{% url 'MODN' %}" class="btn btn-primary">Modificar Notas</a>
+                        <h5 class="card-title">{{ curso.curso_nombre }}</h5>
+                        <p class="card-text" style="color: black;">Descripción del curso: {{ curso.curso_nombre }}.</p>
+                        <p class="card-text" style="color: black;">Profesor: {{ curso.profesor.userp.first_name}}</p>
+                        <a href="{% url 'MODN' curso.id %}" class="btn btn-primary">Modificar Notas</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Curso B</h5>
-                        <p class="card-text" style="color: black;">Descripción del Curso B.</p>
-                        <p class="card-text" style="color: black;">Profesor: Nombre del Profesor B.</p>
-                        <a href="{% url 'MODN' %}" class="btn btn-primary">Modificar Notas</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Curso C</h5>
-                        <p class="card-text" style="color: black;">Descripción del Curso C.</p>
-                        <p class="card-text" style="color: black;">Profesor: Nombre del Profesor C.</p>
-                        <a href="{% url 'MODN' %}" class="btn btn-primary">Modificar Notas</a>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </body>
 
-    {% endblock contenedor %}
+{% endblock contenedor %}

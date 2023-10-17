@@ -9,6 +9,10 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from django.http import JsonResponse
 from django.utils import timezone
+from decimal import Decimal
+from django.urls import reverse
+from django.contrib import messages
+
 
 # Create your views here.
 def login(request):
@@ -109,26 +113,34 @@ def listaalumnos(request, curso_id):
     return render(request, "listadealumnos.html", {"alumnos": alumnos})
 
 
-def listaasistencia(request, curso_id):
-    # Obtén una lista de clases para el curso específico
-    clases = Clase.objects.filter(curso__id=curso_id)
+def listaasistencia(request):
+    # Obtén una lista de todas las clases de asistencia
+    clases = Clase.objects.all()
 
-    # Calcula el total de asistencias de todos los alumnos en el curso específico
-    total_asistencias = Alumno.objects.filter(curso__id=curso_id).aggregate(total_asistencias=models.Sum('asistencias'))['total_asistencias']
-    
-    # Calcula el total de alumnos en el curso específico
-    total_alumnos = Alumno.objects.filter(curso__id=curso_id).count()
+    cursos_con_asistencia = []
 
-    # Inicializa el porcentaje en cero por defecto
-    porcentaje_asistencia_general = 0
+    for clase in clases:
+        # Aquí puedes realizar los cálculos necesarios para cada clase
+        curso = clase.curso
+        total_alumnos = Alumno.objects.filter(curso=curso).count()
+        total_asistencias = Alumno.objects.filter(curso=curso).aggregate(total_asistencias=models.Sum('asistencias'))['total_asistencias']
+        porcentaje_asistencia = 0
 
-    # Verifica que haya al menos un alumno antes de calcular el porcentaje
-    if total_alumnos > 0:
-        # Calcula el porcentaje solo si hay clases, de lo contrario, permanece en 0
-        if len(clases) > 0:
-            porcentaje_asistencia_general = (total_asistencias / (total_alumnos * len(clases))) * 100
+        if total_alumnos > 0 and total_asistencias is not None:
+            total_clases = clases.filter(curso=curso).count()
+            if total_clases > 0:
+                porcentaje_asistencia = (total_asistencias / (total_alumnos * total_clases)) * 100
 
-    return render(request, "listadoasistencia.html", {'porcentaje_asistencia_general': porcentaje_asistencia_general})
+        cursos_con_asistencia.append({
+            'curso_nombre': curso.nombrecurso,
+            'alumnos': total_alumnos,
+            'porcentaje_asistencia': porcentaje_asistencia,
+            'curso_id': curso.id,  # Cambiar 'clase_id' a 'curso_id'
+        })
+
+    return render(request, "listadoasistencia.html", {'cursos_con_asistencia': cursos_con_asistencia})
+
+
 
 
 
@@ -137,11 +149,56 @@ def listacursos(request):
     cursos = Curso.objects.annotate(cantidad_alumnos=models.Count('alumno'))  # Calcula la cantidad de alumnos por curso
     return render(request, "listadodecursos.html", {'cursos': cursos})
 
-def modificarnotas(request):
-    return render(request, "modificarnotas.html")
+def modificarnotas(request, curso_id):
+    # Obtén el curso específico basado en el ID proporcionado
+    curso = Curso.objects.get(pk=curso_id)
+
+    # Obtén una lista de alumnos en este curso
+    alumnos = Alumno.objects.filter(curso=curso)
+
+    if request.method == 'POST':
+        # Maneja el formulario de modificación de notas y guarda los cambios en la base de datos
+        for alumno in alumnos:
+            parcial1 = request.POST.get(f'parcial1_{alumno.id}')
+            parcial2 = request.POST.get(f'parcial2_{alumno.id}')
+            parcial3 = request.POST.get(f'parcial3_{alumno.id}')
+            parcial4 = request.POST.get(f'parcial4_{alumno.id}')
+            examen_final = request.POST.get(f'examen_final_{alumno.id}')
+
+            # Realiza la validación de los valores antes de guardarlos
+            try:
+                parcial1 = Decimal(parcial1) if parcial1 else None
+                parcial2 = Decimal(parcial2) if parcial2 else None
+                parcial3 = Decimal(parcial3) if parcial3 else None
+                parcial4 = Decimal(parcial4) if parcial4 else None
+                examen_final = Decimal(examen_final) if examen_final else None
+            except (ValueError, TypeError):
+                # Establece un mensaje de error
+                error_message = "Hubo un error al procesar los valores de las notas. Asegúrate de ingresar números válidos."
+                messages.error(request, error_message)
+            else:
+                # Guarda o actualiza las notas en la base de datos si la validación fue exitosa
+                notas, created = Notas.objects.get_or_create(alumno=alumno)
+                notas.parcial1 = parcial1
+                notas.parcial2 = parcial2
+                notas.parcial3 = parcial3
+                notas.parcial4 = parcial4
+                notas.examen_final = examen_final
+                notas.save()
+
+        # Después de procesar los cambios, muestra un mensaje de éxito
+        success_message = "Notas modificadas con éxito."
+        messages.success(request, success_message)
+
+        # Redirecciona al índice o dashboard
+        return redirect('IND')  # Asegúrate de que 'index' sea el nombre correcto de la URL
+
+    return render(request, "modificarnotas.html", {'curso': curso, 'alumnos': alumnos})
 
 def notas(request):
-    return render(request, "notas.html")
+    cursos = Curso.objects.all()  # Obtén una lista de todos los cursos
+
+    return render(request, "notas.html", {'cursos': cursos})
 
 def situacionalumnos(request):
     return render(request, "situacionalumnos.html")

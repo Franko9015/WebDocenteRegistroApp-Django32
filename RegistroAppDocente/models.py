@@ -37,6 +37,7 @@ class Clase(models.Model):
     periodo_semestral = models.ForeignKey(PeriodoSemestral, on_delete=models.CASCADE)
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
+    clase_iniciada = models.BooleanField(default=False)  # Nuevo campo
 
     class Meta:
         db_table = 'clase'
@@ -44,7 +45,8 @@ class Clase(models.Model):
     def __str__(self):
         return f'Clase del {self.fecha} - {self.curso.nombrecurso} - {self.materia.nombre}'
 
-from django.contrib.auth.models import User
+
+
 
 class Alumno(models.Model):
     usera = models.OneToOneField(User, on_delete=models.CASCADE, default=None, null=True)
@@ -96,17 +98,17 @@ class Profesor(models.Model):
 
 class Notas(models.Model):
     alumno = models.ForeignKey(Alumno, on_delete=models.CASCADE)
-    parcial1 = models.DecimalField(max_digits=3, decimal_places=1)
-    parcial2 = models.DecimalField(max_digits=3, decimal_places=1)
-    parcial3 = models.DecimalField(max_digits=3, decimal_places=1)
-    parcial4 = models.DecimalField(max_digits=3, decimal_places=1)
-    examen_final = models.DecimalField(max_digits=3, decimal_places=1)
+    parcial1 = models.DecimalField(max_digits=3, decimal_places=1, null=True)
+    parcial2 = models.DecimalField(max_digits=3, decimal_places=1, null=True)
+    parcial3 = models.DecimalField(max_digits=3, decimal_places=1, null=True)
+    parcial4 = models.DecimalField(max_digits=3, decimal_places=1, null=True)
+    examen_final = models.DecimalField(max_digits=3, decimal_places=1, null=True)
 
     class Meta:
         db_table = 'notas'
 
     def __str__(self):
-        return f'Notas de {self.alumno.nombres} {self.alumno.apellidoP} {self.apellidoM}'
+        return f'Notas de {self.alumno.usera.first_name} {self.alumno.usera.last_name}'
 
 class Comunicado(models.Model):
     URGENTE = 'U'
@@ -144,4 +146,5 @@ class Anotacion(models.Model):
         db_table = 'anotacion'
 
     def __str__(self):
-        return f'Anotación para {self.alumno.nombres} {self.alumno.apellidoP} ({self.tipo_anotacion})'
+        return f'Notas de {self.alumno.usera.first_name} {self.alumno.usera.last_name}'
+

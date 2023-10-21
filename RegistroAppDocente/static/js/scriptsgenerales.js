@@ -68,20 +68,47 @@ function logout() {
 }
 
 // Esta función está relacionada con el inicio de la clase
-function iniciarClase() {
+function iniciarClase(button) {
+    var cursoID = $(button).data("curso-id");
     Swal.fire({
         title: '¿Estás seguro de iniciar la clase?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Sí, iniciar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
+        cancelButtonText: 'Cancelar',
+        allowOutsideClick: () => !Swal.isLoading(), // Evita hacer clic fuera del cuadro de diálogo durante la carga
+        showLoaderOnConfirm: true, // Muestra el indicador de carga al hacer clic en "Sí, iniciar"
+        preConfirm: () => {
+            // Realiza la solicitud AJAX para crear un registro en el modelo Clase
+            return fetch('{% url 'crear_clase' %}', {  // Usa la variable JavaScript
+                method: 'POST',
+                body: JSON.stringify({ curso_id: cursoID }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') // Asegúrate de incluir la configuración de CSRF
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al crear la clase');
+                }
+                return response.json();
+            })
+            .catch(error => {
+                Swal.showValidationMessage(`Error: ${error}`);
+            });
+        },
+        allowEnterKey: false // Evita enviar el formulario al presionar Enter
+    })
+    .then(result => {
         if (result.isConfirmed) {
-            // Redirige a la página de asistencia
-            window.location.href = asistenciaURL;
+            Swal.fire('Clase creada exitosamente');
+            // Redirige a la página de asistencia si se crea la clase exitosamente
+            window.location.href = result.value.redirect;
         }
     });
 }
+
 
 // Esta función está relacionada con el envío de comunicados
 function enviarComunicado() {
@@ -251,7 +278,9 @@ function generarCodigosQR(studentIds) {
         qrImage.src = qr.toDataURL('image/png');
         qrCodesContainer.appendChild(qrImage);
     });
+    
 }
+
 
 
 
@@ -270,3 +299,4 @@ var comunicadoURL = "{% url 'comunicado' %}";
 var historialcomunicadosURL = "{% url 'HSC' %}";
 var historialanotacionesURL = "{% url 'HAN' %}";
 var perfilURL = "{% url 'PF' %}";
+var crearClaseURL = "{% url 'crear_clase' %}";

@@ -1,10 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 import qrcode
+import json
 from django.http import HttpResponse
 from .forms import ComunicadoForm 
 from .forms import AsistenciaForm
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 from io import BytesIO
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from django.http import JsonResponse
@@ -12,7 +16,7 @@ from django.utils import timezone
 from decimal import Decimal
 from django.urls import reverse
 from django.contrib import messages
-
+from django.db.models import Count, F, Sum, ExpressionWrapper, FloatField
 
 # Create your views here.
 def login(request):
@@ -114,34 +118,16 @@ def listaalumnos(request, curso_id):
 
 
 def listaasistencia(request):
-    # Obtén una lista de todas las clases de asistencia
-    clases = Clase.objects.all()
-
-    cursos_con_asistencia = []
-
-    for clase in clases:
-        # Aquí puedes realizar los cálculos necesarios para cada clase
-        curso = clase.curso
-        total_alumnos = Alumno.objects.filter(curso=curso).count()
-        total_asistencias = Alumno.objects.filter(curso=curso).aggregate(total_asistencias=models.Sum('asistencias'))['total_asistencias']
-        porcentaje_asistencia = 0
-
-        if total_alumnos > 0 and total_asistencias is not None:
-            total_clases = clases.filter(curso=curso).count()
-            if total_clases > 0:
-                porcentaje_asistencia = (total_asistencias / (total_alumnos * total_clases)) * 100
-
-        cursos_con_asistencia.append({
-            'curso_nombre': curso.nombrecurso,
-            'alumnos': total_alumnos,
-            'porcentaje_asistencia': porcentaje_asistencia,
-            'curso_id': curso.id,  # Cambiar 'clase_id' a 'curso_id'
-        })
-
-    return render(request, "listadoasistencia.html", {'cursos_con_asistencia': cursos_con_asistencia})
-
-
-
+    cursos = Curso.objects.all().annotate(
+        cantidad_alumnos=Count('alumno'),
+        total_clases=Count('clase'),
+        total_asistencias=Sum(F('alumno__asistencias')),
+        porcentaje_asistencia=ExpressionWrapper(
+            (F('total_asistencias') / (F('cantidad_alumnos') * F('total_clases'))) * 100,
+            output_field=FloatField()
+        )
+    )
+    return render(request, "listadoasistencia.html", {'cursos': cursos})
 
 
 
@@ -253,3 +239,27 @@ def historialcomunicados(request):
     comunicados = Comunicado.objects.all()
     # Recupera todos los comunicados
     return render(request, "historialdecomunicados.html", {'comunicados': comunicados})
+
+@csrf_exempt  # Agrega esta decoración
+def crear_clase(request):
+    if request.method == 'POST':
+        curso_id = request.POST.get('curso_id')
+        
+        # Asegúrate de obtener el curso correspondiente o mostrar un error si no existe
+        curso = get_object_or_404(Curso, pk=curso_id)
+        
+        # Aquí puedes crear el registro de clase con la información necesaria
+        # como la fecha, materia, etc. Esto es solo un ejemplo básico:
+        nueva_clase = Clase(
+            fecha=datetime.date.today(),  # Puedes personalizar la fecha
+            curso=curso,                # Asigna el curso correspondiente
+            materia=None,               # Añade la materia si es necesario
+            clase_iniciada=True         # Marca la clase como iniciada
+        )
+        nueva_clase.save()
+        
+        # Envía una respuesta JSON para indicar que se creó la clase con éxito y la URL de redirección
+        return JsonResponse({'message': 'Clase creada exitosamente', 'redirect': asistenciaURL})
+    else:
+        # En caso de una solicitud incorrecta, devuelva un error apropiado
+        return JsonResponse({'error': 'Solicitud no válida'}, status=400)

@@ -16,27 +16,33 @@
                 </tr>
             </thead>
             <tbody>
-                {% for curso in cursos_con_asistencia %}
+                {% for curso in cursos %}
                 <tr>
-                    <td>{{ curso.curso_nombre }}</td>
-                    <td>{{ curso.alumnos }}</td>
-                    <td>{{ curso.porcentaje_asistencia }}%</td>
+                    <td>{{ curso.nombrecurso }}</td>
+                    <td>{{ curso.cantidad_alumnos }}</td>
+                    <td>{{ curso.porcentaje_asistencia|default:"0.00" }}%</td>
                     <td>
-                        <a href="{% url 'ASIS' curso.curso_id %}" class="btn btn-primary">Empezar clase</a>
+                        <a data-curso-id="{{ curso.id }}" onclick="iniciarClase(this)" class="btn btn-primary">Empezar clase</a>
+            
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-{% endblock contenedor %}
+</body>
+</html>
+{% endblock contenedor%}
 {% block js %}
-
+<script>
+    // Recorrer cada fila de la tabla y calcular el porcentaje de asistencia
+    document.addEventListener('DOMContentLoaded', function () {
+        const cursos = {{ cursos|safe }};
+        cursos.forEach(curso => {
+            const porcentaje = (curso.alumnos > 0) ? (curso.asistencias / (curso.alumnos * curso.total_clases)) * 100 : 0;
+            const porcentajeElement = document.getElementById(`porcentaje-asistencia-${curso.id}`);
+            porcentajeElement.textContent = porcentaje.toFixed(2) + '%';
+        });
+    });
+</script>
 {% endblock js %}
-
-</body>
-</html>
-
-
-</body>
-</html>

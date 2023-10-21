@@ -23,5 +23,6 @@ urlpatterns = [
     path('historialcomunicados/', historialcomunicados, name="HSC"),
     path('historialanotaciones/', historialanotaciones, name="HAN"),
     path('Perfil/',perfilprofesor,name='PF'),
+    path('crear_clase/', crear_clase, name='crear_clase'),
 ]
 

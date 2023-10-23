@@ -13,6 +13,17 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from datetime import date 
 from django.http import JsonResponse
+from django.contrib.auth import login as auth_login, authenticate
+from .serializers import *
+from rest_framework.generics import UpdateAPIView
+from rest_framework.generics import DestroyAPIView
+from rest_framework import generics
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+
+
 from django.utils import timezone
 from decimal import Decimal
 from django.urls import reverse
@@ -21,20 +32,22 @@ from django.db.models import Count, F, Sum, ExpressionWrapper, FloatField
 
 # Create your views here.
 def login(request):
+    error_message = None  # Inicializar la variable error_message
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
+        userp = authenticate(request, username=username, password=password)
 
-        if user is not None:
-            login(request, user)
-            # Redirigir al panel de control o a la página deseada después del inicio de sesión
-            return redirect('nombre_de_la_vista')
+        if userp is not None:
+            auth_login(request, userp)
+            return redirect('dashboard/')  # Asegúrate de que 'index.html' sea la URL correcta a la que deseas redirigir
+
         else:
             # Mostrar un mensaje de error en caso de credenciales incorrectas
             error_message = "Credenciales incorrectas. Por favor, inténtelo de nuevo."
 
-    return render(request, "login.html")
+    return render(request, "login.html", {"error_message": error_message})
+
 
 def index(request):
     user = request.user  # Obtén el usuario autenticado
@@ -227,8 +240,14 @@ def comunicado(request):
 
     return render(request, "comunicado.html", {})
 
+@login_required
 def perfilprofesor(request):
-    return render(request, "PerfilProfesor.html")
+    # Recuperar el profesor relacionado con el usuario actual
+    profesor = Profesor.objects.get(userp=request.user)
+    data = {
+        'profesor': profesor 
+    }
+    return render(request, "PerfilProfesor.html",data)
 
 def historialanotaciones(request):
     # Recupera todas las anotaciones con información de alumno, curso y otros campos relacionados
@@ -267,3 +286,69 @@ def crear_clase(request):
         return JsonResponse({'message': 'Clase creada exitosamente', 'redirect': asistencia_url})
     else:
         return JsonResponse({'error': 'Solicitud no válida'}, status=400)
+
+#####################################-----------METODOS API-------------#########################################################################
+
+class PeriodoSemestralListCreateAPIView(generics.ListCreateAPIView):
+    queryset = PeriodoSemestral.objects.all()
+    serializer_class = PeriodoSemestralSerializer
+
+class PeriodoSemestralRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = PeriodoSemestral.objects.all()
+    serializer_class = PeriodoSemestralSerializer
+
+class CursoListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Curso.objects.all()
+    serializer_class = CursoSerializer
+
+class CursoRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Curso.objects.all()
+    serializer_class = CursoSerializer
+
+class MateriaListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Materia.objects.all()
+    serializer_class = MateriaSerializer
+
+class MateriaRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Materia.objects.all()
+    serializer_class = MateriaSerializer
+
+class AlumnoListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Alumno.objects.all()
+    serializer_class = AlumnoSerializer
+
+class AlumnoRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Alumno.objects.all()
+    serializer_class = AlumnoSerializer
+
+class ProfesorListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Profesor.objects.all()
+    serializer_class = ProfesorSerializer
+
+class ProfesorRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Profesor.objects.all()
+    serializer_class = ProfesorSerializer
+
+class NotasListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Notas.objects.all()
+    serializer_class = NotasSerializer
+
+class NotasRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Notas.objects.all()
+    serializer_class = NotasSerializer
+
+class ComunicadoListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Comunicado.objects.all()
+    serializer_class = ComunicadoSerializer
+
+class ComunicadoRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comunicado.objects.all()
+    serializer_class = ComunicadoSerializer
+
+class AnotacionListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Anotacion.objects.all()
+    serializer_class = AnotacionSerializer
+
+class AnotacionRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Anotacion.objects.all()
+    serializer_class = AnotacionSerializer

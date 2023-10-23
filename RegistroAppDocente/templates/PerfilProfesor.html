@@ -1,15 +1,15 @@
 {% extends "base3.html" %}
 {% load static %}
 
-{% block content %}
+{% block contenedor %}
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-3">
             <img src="{{ profesor.foto_perfil.url }}" alt="Foto de Perfil" class="rounded-circle" width="150">
         </div>
         <div class="col-md-9">
-            <h1>{{ profesor.nombres }} {{ profesor.apellidoP }} {{ profesor.apellidoM }}</h1>
-            <p><strong>Título:</strong> {{ profesor.titulo }}</p>
+            <h1>{{ profesor.userp.first_name }} {{ profesor.userp.last_name }}</h1>
+            <p><strong>Título:</strong>  {{ profesor.titulo }}</p>
             <p><strong>Ramo que enseña:</strong> {{ profesor.materia.nombre }}</p>
             <p><strong>Fecha de Nacimiento:</strong> {{ profesor.fecha_nacimiento }}</p>
             <p><strong>Cantidad de Alumnos:</strong> {{ profesor.cantidad_alumnos }}</p>
@@ -22,8 +22,9 @@
     <h2>Cursos que enseña</h2>
     <ul>
         {% for curso in profesor.cursos.all %}
-        <li>{{ curso.nombrecurso }} ({{ curso.aniocurso }})</li>
+            <li>{{ curso.nombrecurso }} ({{ curso.aniocurso }})</li>
         {% endfor %}
     </ul>
 </div>
-{% endblock content %}
+{% endblock contenedor %}
+

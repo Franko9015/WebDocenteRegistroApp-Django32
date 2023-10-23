@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class PeriodoSemestral(models.Model):
+    id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
@@ -13,6 +14,7 @@ class PeriodoSemestral(models.Model):
         return self.nombre
 
 class Curso(models.Model):
+    id = models.AutoField(primary_key=True)
     nombrecurso = models.CharField(max_length=100)
     aniocurso = models.IntegerField(blank=True, null=True)
     cantidadalumnos = models.IntegerField(blank=True, null=True)
@@ -24,6 +26,7 @@ class Curso(models.Model):
         return self.nombrecurso
 
 class Materia(models.Model):
+    id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50)
 
     class Meta:
@@ -33,6 +36,7 @@ class Materia(models.Model):
         return self.nombre
 
 class Clase(models.Model):
+    id = models.AutoField(primary_key=True)
     fecha = models.DateField()
     periodo_semestral = models.ForeignKey(PeriodoSemestral, on_delete=models.CASCADE)
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
@@ -47,6 +51,7 @@ class Clase(models.Model):
 from django.contrib.auth.models import User
 
 class Alumno(models.Model):
+    id = models.AutoField(primary_key=True)
     usera = models.OneToOneField(User, on_delete=models.CASCADE, default=None, null=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
     foto_alumno = models.ImageField(upload_to='foto', null=True, blank=True, default='foto/fotodefault.png')
@@ -77,6 +82,7 @@ class Alumno(models.Model):
 
 
 class Profesor(models.Model):
+    id = models.AutoField(primary_key=True)
     userp = models.OneToOneField(User, on_delete=models.CASCADE, default=None, null=True)
     foto_perfil = models.ImageField(upload_to='foto', null=True, blank=True, default='foto/fotodefault.png')
     cursos = models.ManyToManyField(Curso)
@@ -95,6 +101,7 @@ class Profesor(models.Model):
         return str(self.userp)
 
 class Notas(models.Model):
+    id = models.AutoField(primary_key=True)
     alumno = models.ForeignKey(Alumno, on_delete=models.CASCADE)
     parcial1 = models.DecimalField(max_digits=3, decimal_places=1)
     parcial2 = models.DecimalField(max_digits=3, decimal_places=1)
@@ -116,7 +123,7 @@ class Comunicado(models.Model):
         (URGENTE, 'Urgente'),
         (GENERAL, 'General'),
     ]
-    
+    id = models.AutoField(primary_key=True)
     titulo = models.CharField(max_length=200)
     contenido = models.TextField()
     fecha_envio = models.DateTimeField(auto_now_add=True)
@@ -130,6 +137,7 @@ class Comunicado(models.Model):
         return self.titulo
 
 class Anotacion(models.Model):
+    id = models.AutoField(primary_key=True)
     TIPO_ANOTACION = (
         ('bitacora', 'Bitácora'),
         ('anotacion negativa', 'Anotación Negativa'),

@@ -1,6 +1,6 @@
 function validarFormulario() {
-  var usuario = document.getElementById("ejemplo1").value;
-  var contrasena = document.getElementById("Ejemplo2").value;
+  var usuario = document.getElementById("username").value;
+  var contrasena = document.getElementById("password").value;
 
   if (usuario.trim() === "" && contrasena.trim() === "") {
       // Caso 1: Ambos campos están vacíos

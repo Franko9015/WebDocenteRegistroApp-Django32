@@ -1,3 +1,20 @@
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Buscar la cookie que comienza con el nombre proporcionado
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
 // Esta función se llama cuando se termina una clase
 function terminarClase() {
     const radios = document.querySelectorAll('input[type="radio"]');
@@ -68,6 +85,7 @@ function iniciarClase() {
 
 // Esta función está relacionada con el envío de comunicados
 function enviarComunicado() {
+    // Obtén los valores de los campos
     const tipoComunicado = document.getElementById('tipoComunicado').value;
     const tituloComunicado = document.getElementById('tituloComunicado').value;
     const mensaje = document.getElementById('mensaje').value;
@@ -77,14 +95,16 @@ function enviarComunicado() {
         return;
     }
 
+    // Mostrar una alerta de confirmación
     Swal.fire({
         title: '¿Estás seguro de enviar el comunicado?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Sí, enviar',
         cancelButtonText: 'Cancelar'
-    }).then(async (result) => {
+    }).then((result) => {
         if (result.isConfirmed) {
+            // Mostrar un mensaje de carga mientras se envía
             Swal.fire({
                 title: 'Enviando comunicado...',
                 icon: 'info',
@@ -92,12 +112,29 @@ function enviarComunicado() {
                 allowOutsideClick: false
             });
 
-            setTimeout(() => {
-                Swal.fire('Comunicado enviado con éxito', '', 'success').then(() => {
-                    // Redirige al dashboard
-                    window.location.href = dashboardURL;
-                });
-            }, 3000); // Simula un envío de 3 segundos
+            // Datos del comunicado
+            const data = {
+                tipoComunicado: tipoComunicado,
+                titulo: tituloComunicado,
+                contenido: mensaje,
+                csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+            };
+
+            // Realiza la solicitud POST solo si el usuario confirma
+            $.ajax({
+                type: 'POST',
+                url: comunicadoURL,
+                data: data,
+                success: function () {
+                    Swal.fire('Comunicado enviado con éxito', '', 'success').then(() => {
+                        // Redirige al dashboard después de enviar
+                        window.location.href = dashboardURL;
+                    });
+                },
+                error: function () {
+                    Swal.fire('Error', 'No se pudo enviar el comunicado', 'error');
+                }
+            });
         }
     });
 }
@@ -164,38 +201,72 @@ function reprobarAlumno() {
 }
 
 function confirmarAnotacion() {
+    const anotacionesURL = document.querySelector('[data-anotaciones-url]').getAttribute('data-anotaciones-url');
+    const listacursosURL = document.querySelector('[data-listacursos-url]').getAttribute('data-listacursos-url');
+
     // Obtén los valores de los campos
-    const curso = document.getElementById('curso').value;
-    const nombre = document.getElementById('nombre').value;
-    const apellido = document.getElementById('apellido').value;
     const tipoAnotacion = document.getElementById('tipoAnotacion').value;
     const comentario = document.getElementById('comentario').value;
 
     // Verifica si algún campo está vacío
-    if (curso === '' || nombre === '' || apellido === '' || tipoAnotacion === '' || comentario === '') {
+    if (tipoAnotacion === '' || comentario === '') {
         Swal.fire('Error', 'Todos los campos deben estar llenos', 'error');
     } else {
-        Swal.fire({
-            title: '¿Estás seguro de generar esta anotación?',
-            text: 'Esta acción no se puede deshacer.',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, generar anotación',
-            cancelButtonText: 'Cancelar',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                anotarAlumno(); // Llama a la función para generar la anotación
+        // Realiza una solicitud POST para guardar la anotación
+        $.ajax({
+            type: 'POST',
+            url: anotacionesURL,
+            data: $('#Formulario').serialize(),
+            success: function () {
+                Swal.fire('Anotación generada con éxito', '', 'success').then(() => {
+                    // Redirecciona a la página de cursos después de guardar
+                    window.location.href = listacursosURL;
+                });
+            },
+            error: function () {
+                Swal.fire('Error', 'No se pudo guardar la anotación', 'error');
             }
         });
     }
 }
 
-function anotarAlumno() {
-    // Simula una espera de 2 segundos (2000 milisegundos)
-    setTimeout(function () {
-        Swal.fire('Anotación generada con éxito', '', 'success').then(() => {
-            // Redirecciona al listado de cursos después de la simulación de carga
-            window.location.href = listacursosURL;
+
+function generarCodigosQR(studentIds) {
+    var qrCodesContainer = document.getElementById('qr-codes');
+    qrCodesContainer.innerHTML = ''; // Limpia cualquier código QR existente
+
+    if (studentIds.length === 0) {
+        return; // No hay estudiantes para generar códigos QR
+    }
+
+    studentIds.forEach(function(studentId) {
+        // Crea un nuevo objeto QRious para cada estudiante
+        var qr = new QRious({
+            value: studentId,
+            size: 150 // Ajusta el tamaño del código QR según tus necesidades
         });
-    }, 2000);
+
+        // Crea un elemento de imagen para el código QR y agrégalo al contenedor
+        var qrImage = document.createElement('img');
+        qrImage.src = qr.toDataURL('image/png');
+        qrCodesContainer.appendChild(qrImage);
+    });
 }
+
+
+
+// Asigna las URL a variables JavaScript
+var loginURL = "{% url 'LOG' %}";
+var dashboardURL = "{% url 'IND' %}";
+var asistenciaURL = "{% url 'ASIS' %}";
+var listaalumnosURL = "{% url 'LALU' curso.id %}"; 
+var listaasistenciaURL = "{% url 'LASIS' %}";
+var listacursosURL = "{% url 'LCUR' %}";
+var modificarnotasURL = "{% url 'MODN' %}";
+var notasURL = "{% url 'NON' %}";
+var situacionalumnosURL = "{% url 'SISA' %}";
+var anotacionesURL = "/anotaciones/" + alumno.id + "/";
+var comunicadoURL = "{% url 'comunicado' %}";
+var historialcomunicadosURL = "{% url 'HSC' %}";
+var historialanotacionesURL = "{% url 'HAN' %}";
+var perfilURL = "{% url 'PF' %}";

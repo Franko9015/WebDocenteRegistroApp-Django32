@@ -34,16 +34,20 @@ class Materia(models.Model):
 
 class Clase(models.Model):
     fecha = models.DateField()
-    periodo_semestral = models.ForeignKey(PeriodoSemestral, on_delete=models.CASCADE)
+    periodo_semestral = models.ForeignKey(PeriodoSemestral, on_delete=models.CASCADE, null=True, blank=True)
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
-    materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
-    clase_iniciada = models.BooleanField(default=False)  # Nuevo campo
+    materia = models.ForeignKey(Materia, on_delete=models.CASCADE, null=True, blank=True)
+    clase_iniciada = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'clase'
 
-    def __str__(self):
-        return f'Clase del {self.fecha} - {self.curso.nombrecurso} - {self.materia.nombre}'
+def __str__(self):
+    curso_nombre = self.curso.nombrecurso if self.curso else "Sin curso"
+    materia_nombre = self.materia.nombre if self.materia else "Sin materia"
+    return f'Clase del {self.fecha} - {curso_nombre} - {materia_nombre}'
+       
+
 
 
 

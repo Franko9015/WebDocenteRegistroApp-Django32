@@ -70,44 +70,54 @@ function logout() {
 // Esta función está relacionada con el inicio de la clase
 function iniciarClase(button) {
     var cursoID = $(button).data("curso-id");
+    var crearClaseURL = $(button).data("crearclase-url");
+
     Swal.fire({
         title: '¿Estás seguro de iniciar la clase?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Sí, iniciar',
         cancelButtonText: 'Cancelar',
-        allowOutsideClick: () => !Swal.isLoading(), // Evita hacer clic fuera del cuadro de diálogo durante la carga
-        showLoaderOnConfirm: true, // Muestra el indicador de carga al hacer clic en "Sí, iniciar"
-        preConfirm: () => {
-            // Realiza la solicitud AJAX para crear un registro en el modelo Clase
-            return fetch('{% url 'crear_clase' %}', {  // Usa la variable JavaScript
-                method: 'POST',
-                body: JSON.stringify({ curso_id: cursoID }),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken') // Asegúrate de incluir la configuración de CSRF
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error al crear la clase');
-                }
-                return response.json();
-            })
-            .catch(error => {
-                Swal.showValidationMessage(`Error: ${error}`);
-            });
-        },
-        allowEnterKey: false // Evita enviar el formulario al presionar Enter
-    })
-    .then(result => {
+    }).then((result) => {
         if (result.isConfirmed) {
-            Swal.fire('Clase creada exitosamente');
-            // Redirige a la página de asistencia si se crea la clase exitosamente
-            window.location.href = result.value.redirect;
+            // Mostrar un mensaje de carga mientras se inicia la clase
+            Swal.fire({
+                title: 'Iniciando la clase...',
+                icon: 'info',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+            });
+
+            // Obtén el token CSRF
+            var csrftoken = getCookie('csrftoken');
+
+            // Datos para crear la clase
+            const data = {
+                curso_id: cursoID,
+                csrfmiddlewaretoken: csrftoken,
+            };
+
+            // Realiza una solicitud POST para crear la clase
+            $.ajax({
+                type: 'POST',
+                url: crearClaseURL,
+                data: data,
+                success: function (response) {
+                    if (response.redirect && response.redirect !== '') {
+                        // Redirige a la página de asistencia con la ID de la clase creada
+                        window.location.href = response.redirect;
+                    }
+                },
+                error: function (error) {
+                    Swal.fire('Error', 'No se pudo iniciar la clase', 'error');
+                },
+            });
         }
     });
 }
+
+
+
 
 
 // Esta función está relacionada con el envío de comunicados

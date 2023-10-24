@@ -22,9 +22,11 @@
                     <td>{{ curso.cantidad_alumnos }}</td>
                     <td>{{ curso.porcentaje_asistencia|default:"0.00" }}%</td>
                     <td>
-                        <a data-curso-id="{{ curso.id }}" onclick="iniciarClase(this)" class="btn btn-primary">Empezar clase</a>
-            
-                    </td>
+                        <form id="crearClaseForm" data-curso-id="{{ curso.id }}">
+                            {% csrf_token %}
+                            <a class="btn btn-primary" data-curso-id="{{ curso.id }}" data-crearclase-url="{% url 'crear_clase' %}" onclick="iniciarClase(this)">Empezar clase</a>
+                        </form>
+                    </td>                    
                 </tr>
                 {% endfor %}
             </tbody>
@@ -35,14 +37,6 @@
 {% endblock contenedor%}
 {% block js %}
 <script>
-    // Recorrer cada fila de la tabla y calcular el porcentaje de asistencia
-    document.addEventListener('DOMContentLoaded', function () {
-        const cursos = {{ cursos|safe }};
-        cursos.forEach(curso => {
-            const porcentaje = (curso.alumnos > 0) ? (curso.asistencias / (curso.alumnos * curso.total_clases)) * 100 : 0;
-            const porcentajeElement = document.getElementById(`porcentaje-asistencia-${curso.id}`);
-            porcentajeElement.textContent = porcentaje.toFixed(2) + '%';
-        });
-    });
+
 </script>
 {% endblock js %}

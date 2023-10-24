@@ -8,9 +8,10 @@ from .forms import AsistenciaForm
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from io import BytesIO
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
+from datetime import date 
 from django.http import JsonResponse
 from django.utils import timezone
 from decimal import Decimal
@@ -240,7 +241,7 @@ def historialcomunicados(request):
     # Recupera todos los comunicados
     return render(request, "historialdecomunicados.html", {'comunicados': comunicados})
 
-@csrf_exempt  # Agrega esta decoración
+@csrf_protect
 def crear_clase(request):
     if request.method == 'POST':
         curso_id = request.POST.get('curso_id')
@@ -248,18 +249,21 @@ def crear_clase(request):
         # Asegúrate de obtener el curso correspondiente o mostrar un error si no existe
         curso = get_object_or_404(Curso, pk=curso_id)
         
+        # Obtén la fecha actual
+        fecha_actual = date.today()
+        
         # Aquí puedes crear el registro de clase con la información necesaria
-        # como la fecha, materia, etc. Esto es solo un ejemplo básico:
         nueva_clase = Clase(
-            fecha=datetime.date.today(),  # Puedes personalizar la fecha
-            curso=curso,                # Asigna el curso correspondiente
-            materia=None,               # Añade la materia si es necesario
-            clase_iniciada=True         # Marca la clase como iniciada
+            fecha=fecha_actual,
+            curso=curso,
+            clase_iniciada=True
         )
         nueva_clase.save()
-        
-        # Envía una respuesta JSON para indicar que se creó la clase con éxito y la URL de redirección
-        return JsonResponse({'message': 'Clase creada exitosamente', 'redirect': asistenciaURL})
+
+        # Obtén la URL de asistencia con la ID de la clase
+        asistencia_url = reverse('ASIS', args=[nueva_clase.id])
+
+        # Envía una respuesta JSON que incluye la URL de redirección
+        return JsonResponse({'message': 'Clase creada exitosamente', 'redirect': asistencia_url})
     else:
-        # En caso de una solicitud incorrecta, devuelva un error apropiado
         return JsonResponse({'error': 'Solicitud no válida'}, status=400)

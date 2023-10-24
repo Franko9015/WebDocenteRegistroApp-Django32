@@ -2,9 +2,8 @@
 {% load static %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/anotaciones.css'%}">
+<link rel="stylesheet" href="{%static 'css/anotaciones.css'%}">
 {% endblock css %}
-
 {% block contenedor %}
 <body>
     <div class="container mt-5">
@@ -20,21 +19,31 @@
                 </tr>
             </thead>
             <tbody>
-                {% for alumno in alumnos %}
                 <tr>
-                    <td>{{ alumno.usera.first_name }}</td>
-                    <td>{{ alumno.usera.last_name }}</td>
-                    <td>{{ alumno.edad }}</td>
-                    <td>{{ alumno.calcular_porcentaje_asistencia }}%</td>
+                    <td>John</td>
+                    <td>Doe</td>
+                    <td>25</td>
+                    <td>85%</td>
                     <td>
-                        <!-- Redirección a la página de anotaciones para el alumno -->
-                        <a class="btn btn-info" href="{% url 'anotaciones' alumno.id %}">Anotación</a>
+                        <!-- Redirección a la página de anotaciones para John -->
+                        <a class="btn btn-info" href="{% url 'ANOT' %}">Anotación</a>
                     </td>
                 </tr>
-                {% endfor %}
+                <tr>
+                    <td>Jane</td>
+                    <td>Smith</td>
+                    <td>23</td>
+                    <td>90%</td>
+                    <td>
+                        <!-- Redirección a la página de anotaciones para Jane -->
+                        <a class="btn btn-info" href="{% url 'ANOT' %}">Anotación</a>
+                    </td>
+                </tr>
+                <!-- Agrega más filas para más alumnos si es necesario -->
             </tbody>
         </table>
     </div>
+
 {% endblock contenedor %}
 
 {% block js %}

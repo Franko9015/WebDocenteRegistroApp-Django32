@@ -21,9 +21,6 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
-
-
 from django.utils import timezone
 from decimal import Decimal
 from django.urls import reverse
@@ -151,7 +148,7 @@ def listacursos(request):
 
 def modificarnotas(request, curso_id):
     # Obtén el curso específico basado en el ID proporcionado
-    curso = Curso.objects.get(pk=curso_id)
+    curso = Curso.objects.get(id)
 
     # Obtén una lista de alumnos en este curso
     alumnos = Alumno.objects.filter(curso=curso)
@@ -237,8 +234,9 @@ def comunicado(request):
         comunicado.save()
 
         return JsonResponse({'success': True})
+    dashboard_url = reverse('IND')
+    return render(request, "comunicado.html", {'dashboard_url': dashboard_url})
 
-    return render(request, "comunicado.html", {})
 
 @login_required
 def perfilprofesor(request):

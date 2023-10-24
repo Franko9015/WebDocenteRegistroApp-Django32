@@ -120,8 +120,7 @@ function iniciarClase(button) {
 
 
 
-// Esta función está relacionada con el envío de comunicados
-function enviarComunicado() {
+function enviarComunicado(button) {
     // Obtén los valores de los campos
     const tipoComunicado = document.getElementById('tipoComunicado').value;
     const tituloComunicado = document.getElementById('tituloComunicado').value;
@@ -160,12 +159,12 @@ function enviarComunicado() {
             // Realiza la solicitud POST solo si el usuario confirma
             $.ajax({
                 type: 'POST',
-                url: comunicadoURL,
+                url: button.getAttribute('data-comunicados-url'),
                 data: data,
                 success: function () {
                     Swal.fire('Comunicado enviado con éxito', '', 'success').then(() => {
                         // Redirige al dashboard después de enviar
-                        window.location.href = dashboardURL;
+                        window.location.href = button.getAttribute('data-dashboard-url');
                     });
                 },
                 error: function () {
@@ -175,6 +174,7 @@ function enviarComunicado() {
         }
     });
 }
+
 
 // Esta función está relacionada con la limpieza del formulario de comunicados
 function limpiarFormulario() {

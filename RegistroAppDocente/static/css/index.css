@@ -46,28 +46,43 @@ body {
 .sidebar a.nav-link.active {
     font-weight: bold;
 }
-
-/* Estilos para el botón de Cerrar Sesión */
-#cerrarSesion {
+/* Estilo para el contenedor del botón y el icono (centrar horizontalmente) */
+#contenedorBotonIcono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  /* Estilo para el icono Font Awesome */
+  #iconoUsuario {
+    font-size: 45px;
+    margin-right: 40px; /* Añade un margen derecho para separar el icono del botón */
+    border-radius: 50%; 
+    color: #000;
+  }
+  
+  /* Estilo para el botón de Cerrar Sesión */
+  #cerrarSesion {
     background-color: #000000;
     color: #fff;
     border-color: #000000;
-    margin-top: 20px;
-}
-
-#cerrarSesion:hover {
+    font-size: 18px;
+  }
+  
+  #cerrarSesion:hover {
     background-color: #000000;
     border-color: #000000;
-}
-
-#botonTexto {
+  }
+  
+  #botonTexto {
     cursor: pointer;
-}
-
-#animacionCarga {
+  }
+  #animacionCarga {
     margin-left: 5px;
     vertical-align: text-bottom;
-}
+  }
+  
 
 /* Estilos para el contenido principal */
 .main-content {

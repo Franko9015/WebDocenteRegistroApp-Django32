@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/index.css'%}">
     <link rel="stylesheet" href="{% static 'css/footer.css'%}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
 {% block css %}
 
 {% endblock css %}
@@ -30,10 +31,15 @@
           </ul>
           
         </div>
-        <a class="btn btn-outline-danger" href="javascript:void(0)" id="cerrarSesion">
-            <span id="botonTexto" onclick="logout()">Cerrar Sesión</span>
-            <span id="animacionCarga" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-        </a>
+        <div id="contenedorBotonIcono">
+            <a href="{%url 'PF'%}">
+              <i id="iconoUsuario" class="fas fa-user"></i>
+            </a>
+            <a class="btn btn-outline-danger" href="javascript:void(0)" id="cerrarSesion">
+              <span id="botonTexto" onclick="logout()">Cerrar Sesión</span>
+              <span id="animacionCarga" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+            </a>
+          </div>                   
     </nav>
 {% block contenedor %}
 

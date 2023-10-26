@@ -13,28 +13,39 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from datetime import date 
 from django.http import JsonResponse
+from django.contrib.auth import login as auth_login, authenticate
+from .serializers import *
+from rest_framework.generics import UpdateAPIView
+from rest_framework.generics import DestroyAPIView
+from rest_framework import generics
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from django.utils import timezone
 from decimal import Decimal
 from django.urls import reverse
 from django.contrib import messages
+from django.db.models import OuterRef, Subquery
 from django.db.models import Count, F, Sum, ExpressionWrapper, FloatField
 
 # Create your views here.
 def login(request):
+    error_message = None  # Inicializar la variable error_message
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
+        userp = authenticate(request, username=username, password=password)
 
-        if user is not None:
-            login(request, user)
-            # Redirigir al panel de control o a la página deseada después del inicio de sesión
-            return redirect('nombre_de_la_vista')
+        if userp is not None:
+            auth_login(request, userp)
+            return redirect('dashboard/')  # Asegúrate de que 'index.html' sea la URL correcta a la que deseas redirigir
+
         else:
             # Mostrar un mensaje de error en caso de credenciales incorrectas
             error_message = "Credenciales incorrectas. Por favor, inténtelo de nuevo."
 
-    return render(request, "login.html")
+    return render(request, "login.html", {"error_message": error_message})
+
 
 def index(request):
     user = request.user  # Obtén el usuario autenticado
@@ -120,7 +131,11 @@ def listaalumnos(request, curso_id):
 
 def listaasistencia(request):
     cursos = Curso.objects.all().annotate(
-        cantidad_alumnos=Count('alumno'),
+        cantidad_alumnos=Subquery(
+            Alumno.objects.filter(curso=OuterRef('pk')).values('curso').annotate(
+                num_alumnos=Count('curso')
+            ).values('num_alumnos')[:1]
+        ),
         total_clases=Count('clase'),
         total_asistencias=Sum(F('alumno__asistencias')),
         porcentaje_asistencia=ExpressionWrapper(
@@ -138,7 +153,7 @@ def listacursos(request):
 
 def modificarnotas(request, curso_id):
     # Obtén el curso específico basado en el ID proporcionado
-    curso = Curso.objects.get(pk=curso_id)
+    curso = Curso.objects.get(id)
 
     # Obtén una lista de alumnos en este curso
     alumnos = Alumno.objects.filter(curso=curso)
@@ -187,8 +202,38 @@ def notas(request):
 
     return render(request, "notas.html", {'cursos': cursos})
 
+def reprobar_alumno(request, alumno_id):
+    try:
+        # Obtener al alumno de la base de datos
+        alumno = Alumno.objects.get(pk=alumno_id)
+        
+        # Realizar las acciones necesarias para marcar al alumno como reprobado (por ejemplo, actualizar un campo en el modelo Alumno)
+        alumno.reprobado = True
+        alumno.save()
+        
+        # Redirigir a la página de inicio o a la página de situacionalumnos
+        return redirect('IND')  # Reemplaza 'inicio' con la URL a la que deseas redirigir
+    except Alumno.DoesNotExist:
+        return redirect('SISA')
+
 def situacionalumnos(request):
-    return render(request, "situacionalumnos.html")
+    # Obtener la lista de alumnos con menos del 70% de asistencia que aún no han sido reprobados
+    alumnos_reprobados = Alumno.objects.filter(Reprobado=False)
+
+    for alumno in alumnos_reprobados:
+        total_clases_programadas = Clase.objects.filter(
+            curso=alumno.curso,
+            periodo_semestral__fecha_inicio__lte=alumno.fecha_nacimiento,
+            periodo_semestral__fecha_fin__gte=alumno.fecha_nacimiento
+        ).count()
+
+        if total_clases_programadas > 0:
+            alumno.porcentaje_asistencia = (alumno.asistencias / total_clases_programadas) * 100
+        else:
+            alumno.porcentaje_asistencia = 0.0
+
+    return render(request, "situacionalumnos.html", {'alumnos_reprobados': alumnos_reprobados})
+
 
 def anotaciones(request, alumno_id):
     # Encuentra el alumno en función del ID
@@ -224,11 +269,18 @@ def comunicado(request):
         comunicado.save()
 
         return JsonResponse({'success': True})
+    dashboard_url = reverse('IND')
+    return render(request, "comunicado.html", {'dashboard_url': dashboard_url})
 
-    return render(request, "comunicado.html", {})
 
+@login_required
 def perfilprofesor(request):
-    return render(request, "PerfilProfesor.html")
+    # Recuperar el profesor relacionado con el usuario actual
+    profesor = Profesor.objects.get(userp=request.user)
+    data = {
+        'profesor': profesor 
+    }
+    return render(request, "PerfilProfesor.html",data)
 
 def historialanotaciones(request):
     # Recupera todas las anotaciones con información de alumno, curso y otros campos relacionados
@@ -267,3 +319,90 @@ def crear_clase(request):
         return JsonResponse({'message': 'Clase creada exitosamente', 'redirect': asistencia_url})
     else:
         return JsonResponse({'error': 'Solicitud no válida'}, status=400)
+
+@csrf_protect
+def terminar_clase(request):
+    if request.method == 'POST':
+        clase_id = request.POST.get('clase_id')
+        try:
+            # Asegúrate de obtener la clase correspondiente
+            clase = Clase.objects.get(pk=clase_id)
+            
+            # Marca la clase como finalizada y no iniciada
+            clase.clase_iniciada = False
+            clase.clase_finalizada = True
+            clase.save()
+            
+            # Construye la URL de redirección
+            listaasistenciaURL = reverse('LASIS')  # Asegúrate de que 'LASIS' sea el nombre correcto de tu URL
+            return JsonResponse({'message': 'Clase finalizada con éxito', 'redirect': listaasistenciaURL})
+        except Clase.DoesNotExist:
+            return JsonResponse({'error': 'Clase no encontrada'}, status=404)
+    else:
+        return JsonResponse({'error': 'Solicitud no válida'}, status=400)
+
+#####################################-----------METODOS API-------------#########################################################################
+
+class PeriodoSemestralListCreateAPIView(generics.ListCreateAPIView):
+    queryset = PeriodoSemestral.objects.all()
+    serializer_class = PeriodoSemestralSerializer
+
+class PeriodoSemestralRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = PeriodoSemestral.objects.all()
+    serializer_class = PeriodoSemestralSerializer
+
+class CursoListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Curso.objects.all()
+    serializer_class = CursoSerializer
+
+class CursoRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Curso.objects.all()
+    serializer_class = CursoSerializer
+
+class MateriaListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Materia.objects.all()
+    serializer_class = MateriaSerializer
+
+class MateriaRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Materia.objects.all()
+    serializer_class = MateriaSerializer
+
+class AlumnoListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Alumno.objects.all()
+    serializer_class = AlumnoSerializer
+
+class AlumnoRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Alumno.objects.all()
+    serializer_class = AlumnoSerializer
+
+class ProfesorListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Profesor.objects.all()
+    serializer_class = ProfesorSerializer
+
+class ProfesorRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Profesor.objects.all()
+    serializer_class = ProfesorSerializer
+
+class NotasListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Notas.objects.all()
+    serializer_class = NotasSerializer
+
+class NotasRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Notas.objects.all()
+    serializer_class = NotasSerializer
+
+class ComunicadoListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Comunicado.objects.all()
+    serializer_class = ComunicadoSerializer
+
+class ComunicadoRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comunicado.objects.all()
+    serializer_class = ComunicadoSerializer
+
+class AnotacionListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Anotacion.objects.all()
+    serializer_class = AnotacionSerializer
+
+class AnotacionRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Anotacion.objects.all()
+    serializer_class = AnotacionSerializer

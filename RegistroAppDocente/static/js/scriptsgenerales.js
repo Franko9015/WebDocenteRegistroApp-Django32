@@ -16,7 +16,12 @@ function getCookie(name) {
 
 
 // Esta función se llama cuando se termina una clase
-function terminarClase() {
+function terminarClase(button) {
+    const terminarClaseURL = $(button).data("terminarclase-url");
+    const claseID = $(button).data("clase-id");
+    const csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+    const listaasistenciaURL = $(button).data("listaasistencia-url");
+
     const radios = document.querySelectorAll('input[type="radio"]');
     const asistenciaCompleta = Array.from(radios).some((radio) => radio.checked);
 
@@ -29,9 +34,22 @@ function terminarClase() {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire('Clase finalizada con éxito', '', 'success').then(() => {
-                    // Redirecciona a otra página cuando se confirma la terminación de la clase
-                    window.location.href = listaasistenciaURL;
+                $.ajax({
+                    type: 'POST',
+                    url: terminarClaseURL,
+                    data: {
+                        clase_id: claseID,
+                        csrfmiddlewaretoken: csrfToken,
+                    },
+                    success: function (response) {
+                        Swal.fire('Clase finalizada con éxito', '', 'success').then(() => {
+                            // Redirige a la página de asistencia después de confirmar la terminación de la clase
+                            window.location.href = listaasistenciaURL;  // Construye la URL directamente aquí
+                        });
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'No se pudo terminar la clase', 'error');
+                    }
                 });
             }
         });
@@ -43,6 +61,19 @@ function terminarClase() {
         });
     }
 }
+
+
+
+
+function obtenerClaseID(button) {
+    return $(button).data("clase-id");
+}
+function obtenerClaseID() {
+    // Aquí debes implementar la lógica para obtener la ID de la clase, puede ser desde un campo oculto en tu HTML o cualquier otra fuente de datos.
+    // Retorna la ID de la clase.
+    return claseID;
+}
+
 
 // Esta función está relacionada con el cierre de sesión
 function logout() {
@@ -120,8 +151,7 @@ function iniciarClase(button) {
 
 
 
-// Esta función está relacionada con el envío de comunicados
-function enviarComunicado() {
+function enviarComunicado(button) {
     // Obtén los valores de los campos
     const tipoComunicado = document.getElementById('tipoComunicado').value;
     const tituloComunicado = document.getElementById('tituloComunicado').value;
@@ -160,12 +190,12 @@ function enviarComunicado() {
             // Realiza la solicitud POST solo si el usuario confirma
             $.ajax({
                 type: 'POST',
-                url: comunicadoURL,
+                url: button.getAttribute('data-comunicados-url'),
                 data: data,
                 success: function () {
                     Swal.fire('Comunicado enviado con éxito', '', 'success').then(() => {
                         // Redirige al dashboard después de enviar
-                        window.location.href = dashboardURL;
+                        window.location.href = button.getAttribute('data-dashboard-url');
                     });
                 },
                 error: function () {
@@ -175,6 +205,7 @@ function enviarComunicado() {
         }
     });
 }
+
 
 // Esta función está relacionada con la limpieza del formulario de comunicados
 function limpiarFormulario() {
@@ -211,7 +242,7 @@ function guardarCambiosNotas() {
 }
 
 // Esta función permite reprobar a un alumno por inasistencia
-function reprobarAlumno() {
+function reprobarAlumno(button, alumnoId) {
     Swal.fire({
         title: '¿Estás seguro de reprobar a este alumno por inasistencia?',
         icon: 'question',
@@ -227,15 +258,24 @@ function reprobarAlumno() {
                 allowOutsideClick: false
             });
 
-            setTimeout(() => {
-                Swal.fire('Alumno reprobado por inasistencia', '', 'success').then(() => {
-                    // Redirige a la página de inicio
-                    window.location.href = dashboardURL;
-                });
-            }, 3000); // Simula una carga de 3 segundos
+            // Realizar una solicitud AJAX para marcar al alumno como reprobado
+            $.ajax({
+                type: 'POST',
+                url: reprobarAlumnoURL(alumnoId),
+                success: function (response) {
+                    Swal.fire('Alumno reprobado por inasistencia', '', 'success').then(() => {
+                        // Redirige a la página de inicio
+                        window.location.href = '{% url 'IND' %}';
+                    });
+                },
+                error: function () {
+                    Swal.fire('Error', 'No se pudo reprobar al alumno', 'error');
+                }
+            });
         }
     });
 }
+
 
 function confirmarAnotacion() {
     const anotacionesURL = document.querySelector('[data-anotaciones-url]').getAttribute('data-anotaciones-url');
@@ -310,3 +350,5 @@ var historialcomunicadosURL = "{% url 'HSC' %}";
 var historialanotacionesURL = "{% url 'HAN' %}";
 var perfilURL = "{% url 'PF' %}";
 var crearClaseURL = "{% url 'crear_clase' %}";
+var terminarClaseURL = "{% url 'terminar_clase' %}";
+var reprobarAlumnoURL = (alumnoId) => "/reprobar_alumno/${alumnoId}/";

@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="{% static 'css/footer.css' %}">
 {% endblock css %}
 
-
 {% block contenedor %}
 <body>
     <div class="container mt-5">
@@ -23,29 +22,20 @@
                 </tr>
             </thead>
             <tbody>
+                {% for alumno in alumnos_reprobados %}
                 <tr>
                     <td><img src="{% static 'img/fotodefault.png' %}" class="rounded-circle" width="55"></td>
-                    <td>Alumno 1</td>
-                    <td>Curso A</td>
-                    <td class="asistencia-baja">55%</td>
+                    <td>{{ alumno.nombre }}</td>
+                    <td>{{ alumno.curso.nombrecurso }}</td>
+                    <td class="asistencia-baja">{{ alumno.porcentaje_asistencia|default:"0.00" }}%</td>
                     <td>
-                        <button class="btn btn-danger" onclick="reprobarAlumno()">Reprobar por Inasistencia</button>
+                        <button class="btn btn-danger" data-alumno-id="{{ alumno.id }}" onclick="reprobarAlumno(this)">Reprobar por Inasistencia</button>
                     </td>
                 </tr>
-                <tr>
-                    <td><img src="{% static 'img/fotodefault.png' %}" class="rounded-circle" width="55"></td>
-                    <td>Alumno 2</td>
-                    <td>Curso B</td>
-                    <td>70%</td>
-                    <td>
-                        <button class="btn btn-danger" onclick="reprobarAlumno()">Reprobar por Inasistencia</button>
-                    </td>
-                </tr>
-                <!-- Agrega más filas para más alumnos si es necesario -->
+                {% endfor %}
             </tbody>
         </table>
     </div>    
-
 </body>
 </html>
 {% endblock contenedor %}

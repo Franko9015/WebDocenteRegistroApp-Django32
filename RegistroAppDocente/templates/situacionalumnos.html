@@ -5,8 +5,8 @@
 <link rel="stylesheet" href="{% static 'css/listadodecursos.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
 <link rel="stylesheet" href="{% static 'css/footer.css' %}">
-{% endblock css %}
 
+{% endblock css %}
 
 {% block contenedor %}
 <body>
@@ -23,29 +23,24 @@
                 </tr>
             </thead>
             <tbody>
+                {% for alumno in alumnos_reprobados %}
                 <tr>
                     <td><img src="{% static 'img/fotodefault.png' %}" class="rounded-circle" width="55"></td>
-                    <td>Alumno 1</td>
-                    <td>Curso A</td>
-                    <td class="asistencia-baja">55%</td>
+                    <td>{{ alumno.usera.first_name }} {{ alumno.usera.last_name }}</td>
+                    <td>{{ alumno.curso.nombrecurso }}</td>
+                    <td class="asistencia-baja">{{ alumno.porcentaje_asistencia|default:"0.00" }}%</td>
                     <td>
-                        <button class="btn btn-danger" onclick="reprobarAlumno()">Reprobar por Inasistencia</button>
-                    </td>
+                        <form method="post" id="reprobar-form-{{ alumno.id }}">
+                            {% csrf_token %}
+                            <button class="btn btn-danger" data-alumno-id="{{ alumno.id }}" onclick="reprobarAlumno(this)">Reprobar por Inasistencia</button>
+                        </form>
+                    </td>                                                                      
                 </tr>
-                <tr>
-                    <td><img src="{% static 'img/fotodefault.png' %}" class="rounded-circle" width="55"></td>
-                    <td>Alumno 2</td>
-                    <td>Curso B</td>
-                    <td>70%</td>
-                    <td>
-                        <button class="btn btn-danger" onclick="reprobarAlumno()">Reprobar por Inasistencia</button>
-                    </td>
-                </tr>
-                <!-- Agrega más filas para más alumnos si es necesario -->
+                {% endfor %}
             </tbody>
         </table>
-    </div>    
-
+    </div>
 </body>
 </html>
 {% endblock contenedor %}
+

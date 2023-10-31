@@ -22,11 +22,8 @@
                     <td>{{ curso.cantidad_alumnos }}</td>
                     <td>{{ curso.porcentaje_asistencia|default:"0.00" }}%</td>
                     <td>
-                        <form id="crearClaseForm" data-curso-id="{{ curso.id }}">
-                            {% csrf_token %}
-                            <a class="btn btn-primary" data-curso-id="{{ curso.id }}" data-crearclase-url="{% url 'crear_clase' %}" onclick="iniciarClase(this)">Empezar clase</a>
-                        </form>
-                    </td>                    
+                        <button class="btn btn-danger" data-alumno-id="{{ alumno.id }}" data-csrf-token="{% csrf_token %}" onclick="reprobarAlumno(this)">Reprobar por Inasistencia</button>
+                    </td>                                     
                 </tr>
                 {% endfor %}
             </tbody>

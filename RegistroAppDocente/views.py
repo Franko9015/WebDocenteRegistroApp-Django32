@@ -239,6 +239,37 @@ def comunicado(request):
     dashboard_url = reverse('IND')
     return render(request, "comunicado.html", {'dashboard_url': dashboard_url})
 
+def reprobar_alumno(request, alumno_id):
+    try:
+        # Obtener al alumno de la base de datos
+        alumno = Alumno.objects.get(pk=alumno_id)
+        
+        # Realizar las acciones necesarias para marcar al alumno como reprobado (por ejemplo, actualizar un campo en el modelo Alumno)
+        alumno.reprobado = True
+        alumno.save()
+        
+        # Redirigir a la página de inicio o a la página de situacionalumnos
+        return redirect('IND')  # Reemplaza 'inicio' con la URL a la que deseas redirigir
+    except Alumno.DoesNotExist:
+        return redirect('SISA')
+
+def situacionalumnos(request):
+    # Obtener la lista de alumnos con menos del 70% de asistencia que aún no han sido reprobados
+    alumnos_reprobados = Alumno.objects.filter(Reprobado=False)
+
+    for alumno in alumnos_reprobados:
+        total_clases_programadas = Clase.objects.filter(
+            curso=alumno.curso,
+            periodo_semestral__fecha_inicio__lte=alumno.fecha_nacimiento,
+            periodo_semestral__fecha_fin__gte=alumno.fecha_nacimiento
+        ).count()
+
+        if total_clases_programadas > 0:
+            alumno.porcentaje_asistencia = (alumno.asistencias / total_clases_programadas) * 100
+        else:
+            alumno.porcentaje_asistencia = 0.0
+
+    return render(request, "situacionalumnos.html", {'alumnos_reprobados': alumnos_reprobados})
 
 @login_required
 def perfilprofesor(request):

@@ -210,32 +210,10 @@ function guardarCambiosNotas() {
     });
 }
 
-// Esta función permite reprobar a un alumno por inasistencia
-function reprobarAlumno() {
-    Swal.fire({
-        title: '¿Estás seguro de reprobar a este alumno por inasistencia?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, reprobar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: 'Reprobando alumno...',
-                icon: 'info',
-                showConfirmButton: false,
-                allowOutsideClick: false
-            });
 
-            setTimeout(() => {
-                Swal.fire('Alumno reprobado por inasistencia', '', 'success').then(() => {
-                    // Redirige a la página de inicio
-                    window.location.href = dashboardURL;
-                });
-            }, 3000); // Simula una carga de 3 segundos
-        }
-    });
-}
+
+
+
 
 function confirmarAnotacion() {
     const anotacionesURL = document.querySelector('[data-anotaciones-url]').getAttribute('data-anotaciones-url');
@@ -266,6 +244,52 @@ function confirmarAnotacion() {
         });
     }
 }
+
+
+function reprobarAlumno(button) {
+    Swal.fire({
+        title: '¿Estás seguro de reprobar a este alumno por inasistencia?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, reprobar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Reprobando alumno...',
+                icon: 'info',
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
+
+            // Recupera el ID del alumno automáticamente desde el botón
+            var alumnoId = button.getAttribute('data-alumno-id');
+
+            // Recupera el token CSRF del botón
+            var csrfToken = button.getAttribute('data-csrf-token');
+
+            // Realiza una solicitud AJAX para marcar al alumno como reprobado
+            $.ajax({
+                type: 'POST',
+                url: `/reprobar_alumno/${alumnoId}/`,
+                headers: { "X-CSRFToken": csrfToken },  // Incluye el token CSRF en los encabezados
+                success: function (response) {
+                    Swal.fire('Alumno reprobado por inasistencia', '', 'success').then(() => {
+                        // Redirige a la página de inicio utilizando la variable dashboardURL
+                        window.location.href = dashboardURL;
+                    });
+                },
+                error: function () {
+                    Swal.fire('Error', 'No se pudo reprobar al alumno', 'error');
+                }
+            });
+        }
+    });
+}
+
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
     var qrCodesContainer = document.getElementById('qr-codes');
 
@@ -292,12 +316,17 @@ document.addEventListener('DOMContentLoaded', function () {
         // Muestra la sección de códigos QR
         var codigoQR = document.getElementById('codigoQR');
         codigoQR.classList.add('show');
+        
     }
 
     // Agrega un evento de clic al botón para llamar a la función generarCodigosQR
     var generarQRButton = document.getElementById('generar-qr-button');
     generarQRButton.addEventListener('click', generarCodigosQR);
 });
+
+
+
+
 
 
 
@@ -318,3 +347,4 @@ var historialcomunicadosURL = "{% url 'HSC' %}";
 var historialanotacionesURL = "{% url 'HAN' %}";
 var perfilURL = "{% url 'PF' %}";
 var crearClaseURL = "{% url 'crear_clase' %}";
+var reprobarAlumnoURL = (alumnoId) => `/reprobar_alumno/${alumnoId}/`;

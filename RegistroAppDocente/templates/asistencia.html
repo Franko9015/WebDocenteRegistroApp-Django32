@@ -55,12 +55,9 @@
         <!-- Botones -->
         <div class="row mt-3">
             <div class="col-12 col-md-6">
-                <button class="btn btn-primary btn-block" type="button" onclick="generarCodigosQR({{ student_ids|safe }})">
+                <button class="btn btn-primary btn-block" type="button" id="generar-qr-button">
                     Generar Códigos QR
-                </button>
-                <div class="collapse mt-3" id="codigoQR">
-                    <div id="qr-codes"></div>
-                </div>
+                </button>                
             </div>
             <div class="col-12 col-md-6">
                 <button class="btn btn-danger btn-block" type="button" onclick="terminarClase()" id="terminarClase">
@@ -68,7 +65,19 @@
                 </button>
             </div>
         </div>
+        <div id="codigoQR" class="collapse mt-3">
+            <div id="qr-codes"></div>
+        </div>     
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script>
+        // Define qrDataArray utilizando Django para pasar los datos necesarios
+        var qrDataArray = [
+            // Tus datos para generar los códigos QR aquí
+            "idalumno: 1,asistencia:presente;hora:15:50;fecha:03/11/2023",
+            // Otros datos aquí
+        ];
+    </script>
 </body>
 </html>
 {% endblock contenedor %}

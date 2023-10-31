@@ -1,7 +1,7 @@
 {% extends "base2.html" %}
 {% load static %}
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/notas.css'%}">
+<link rel="stylesheet" href="{% static 'css/notas.css' %}">
 {% endblock css %}
 
 {% block contenedor %}
@@ -13,9 +13,12 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">{{ curso.curso_nombre }}</h5>
-                        <p class="card-text" style="color: black;">Descripción del curso: {{ curso.curso_nombre }}.</p>
-                        <p class="card-text" style="color: black;">Profesor: {{ curso.profesor.userp.first_name}}</p>
+                        <h1 class="card-title">{{ curso.nombrecurso   }}</h1>
+                        <p class="card-text" style="color: black;">Cantidad de alumnos del curso: {{ curso.cantidadalumnos }}.</p>
+                        <p class="card-text" style="color: black;">Año del curso del curso: {{ curso.aniocurso }}.</p>
+                        <p class="card-text" style="color: black;">Profesor: 
+                            {% if user.is_authenticated %}{{ user.get_full_name }}{% else %}X{% endif %}
+                        </p>
                         <a href="{% url 'MODN' curso.id %}" class="btn btn-primary">Modificar Notas</a>
                     </div>
                 </div>

@@ -38,8 +38,7 @@ function validarFormulario() {
 }
 
 
-
-        // Asigna las URL a variables JavaScript
+     
         var loginURL = "{% url 'LOG' %}";
         var dashboardURL = "{% url 'IND' %}";
         var asistenciaURL = "{% url 'ASIS' %}";

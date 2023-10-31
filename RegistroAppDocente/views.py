@@ -56,20 +56,21 @@ def index(request):
 
     return render(request, "index.html", {'full_name': full_name})
 
-def generate_qr_code(student_id):
+def generate_qr_code(qr_data):
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
         box_size=10,
         border=4,
     )
-    qr.add_data(student_id)
+    qr.add_data(qr_data)
     qr.make(fit=True)
 
     img = qr.make_image(fill_color="black", back_color="white")
     buffer = BytesIO()
     img.save(buffer, format="PNG")
     return buffer.getvalue()
+    
 def asistencia(request, clase_id):
     # Obtener la clase por su ID o mostrar un error 404 si no existe
     clase = get_object_or_404(Clase, pk=clase_id)
@@ -148,7 +149,7 @@ def listacursos(request):
 
 def modificarnotas(request, curso_id):
     # Obtén el curso específico basado en el ID proporcionado
-    curso = Curso.objects.get(id)
+    curso = Curso.objects.get(id=curso_id)
 
     # Obtén una lista de alumnos en este curso
     alumnos = Alumno.objects.filter(curso=curso)
@@ -196,6 +197,7 @@ def notas(request):
     cursos = Curso.objects.all()  # Obtén una lista de todos los cursos
 
     return render(request, "notas.html", {'cursos': cursos})
+
 
 def situacionalumnos(request):
     return render(request, "situacionalumnos.html")

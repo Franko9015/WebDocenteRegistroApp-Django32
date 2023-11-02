@@ -1,7 +1,7 @@
 {% extends "base2.html" %}
-{% load static %}
+{%load static%}
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/listadodecursos.css' %}">
+<link rel="stylesheet" href="{% static 'css/listadodecursos.css' %}"> 
 {% endblock css %}
 {% block contenedor %}
 <body>
@@ -17,17 +17,34 @@
                 </tr>
             </thead>
             <tbody>
-                {% for curso in cursos %}
                 <tr>
-                    <td>{{ curso.nombrecurso }}</td>
-                    <td>{{ curso.aniocurso }}</td>
-                    <td>{{ curso.cantidad_alumnos }}</td>
-                    <td><a href="{% url 'LALU' curso_id=1 %}" class="btn btn-success">Ver alumnos</a></td>
+                    <td>Curso 1</td>
+                    <td>2023</td>
+                    <td>25</td>
+                    <td><a href="{% url 'LALU' %}" class="btn btn-success">Ver alumnos</a></td>
                 </tr>
-                {% endfor %}
+                <tr>
+                    <td>Curso 2</td>
+                    <td>2023</td>
+                    <td>30</td>
+                    <td><a href="{% url 'LALU' %}" class="btn btn-success">Ver alumnos</a></td>
+                </tr>
+                <tr>
+                    <td>Curso 3</td>
+                    <td>2023</td>
+                    <td>20</td>
+                    <td><a href="{% url 'LALU' %}" class="btn btn-success">Ver alumnos</a></td>
+                </tr>
+                <!-- Repite esto para los demás cursos -->
+                <tr>
+                    <td>Curso 10</td>
+                    <td>2023</td>
+                    <td>22</td>
+                    <td><a href="{% url 'LALU' %}" class="btn btn-success">Ver alumnos</a></td>
+                </tr>
             </tbody>
         </table>
     </div>
 </body>
-{% endblock contenedor %}
 </html>
+{% endblock contenedor %}

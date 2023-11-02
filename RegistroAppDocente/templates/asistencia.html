@@ -23,13 +23,35 @@
                 </tr>
             </thead>
             <tbody>
-                {% for student in students %}
                 <tr>
-                    <th scope="row">{{ forloop.counter }}</th>
-                    <td><img src="{{ student.foto_alumno.url }}" class="rounded-circle" width="55"></td>
-                    <td>{{ student.usera.first_name }}</td>
-                    <td>{{ student.usera.last_name }}</td>
-                    <td>{{ student.calcular_edad }}</td>
+                    <th scope="row">1</th>
+                    <td><img src="{% static 'img/fotodefault.png' %}" class="rounded-circle" width="55"></td>
+                    <td>John</td>
+                    <td>Doe</td>
+                    <td>Smith</td>
+                    <td>25</td>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="asistencia1" id="presente1" value="presente">
+                            <label class="form-check-label" for="presente1">
+                                Presente
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="asistencia1" id="ausente1" value="ausente">
+                            <label class="form-check-label" for="ausente1">
+                                Ausente
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">2</th>
+                    <td><img src="{% static 'img/ejemplo1.png' %}" width="56"></td>
+                    <td>Jane</td>
+                    <td>Smith</td>
+                    <td>Roe</td>
+                    <td>23</td>
                     <td>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="asistencia" value="presente">
@@ -45,7 +67,7 @@
                         </div>                                             
                     </td>                    
                 </tr>
-                {% endfor %}
+                <!-- Agrega más filas para más alumnos si es necesario -->
             </tbody>
         </table>
 

@@ -12,10 +12,10 @@ from django.conf import settings
 urlpatterns = [
     path('',login,name='LOG'),
     path('dashboard/',index,name='IND'),
-    path('asistencia/<int:clase_id>/', asistencia, name='ASIS'),
-    path('listaalumnos/<int:curso_id>/', listaalumnos, name='LALU'),
-    path('anotaciones/<int:alumno_id>/', anotaciones, name='anotaciones'),
-    path('comunicados/', comunicado, name='comunicado'),
+    path('asistencia/',asistencia,name='ASIS'),
+    path('listaalumnos/',listaalumnos,name='LALU'),
+    path('anotaciones/',anotaciones,name='ANOT'),
+    path('comunicados/',comunicado,name='COM'),
     path('listacursos/',listacursos,name='LCUR'),
     path('modificarnotas/<int:curso_id>/', modificarnotas, name='MODN'),
     path('situacionalumnos/',situacionalumnos,name  ='SISA'),
@@ -47,4 +47,3 @@ urlpatterns = [
 
 
 ]
-

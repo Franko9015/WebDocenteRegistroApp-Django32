@@ -7,7 +7,7 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{%static 'css/anotaciones.css'%}">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
 </head>
 <nav class="navbar navbar-light bg-light">
@@ -25,13 +25,21 @@
 
 {% endblock js %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{%static 'js/scriptsgenerales.js'%}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
-
+    <script>
+        // Asigna las URL a variables JavaScript
+        var loginURL = "{% url 'LOG' %}";
+        var dashboardURL = "{% url 'IND' %}";
+        var asistenciaURL = "{% url 'ASIS' %}";
+        var listaalumnosURL = "{% url 'LALU' %}";
+        var listaasistenciaURL = "{% url 'LASIS' %}";
+        var listacursosURL = "{% url 'LCUR' %}";
+        var modificarnotasURL = "{% url 'MODN' %}";
+        var notasURL = "{% url 'NON' %}";
+        var situacionalumnosURL = "{% url 'SISA' %}";
+        var anotacionesURL = "{% url 'ANOT' %}";
+        var comunicadoURL = "{% url 'COM' %}";
+    </script>
 </body>
 </html>

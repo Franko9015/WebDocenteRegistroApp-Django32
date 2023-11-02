@@ -1,5 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import *
+from django.shortcuts import render
 import qrcode
 import json
 from django.http import HttpResponse
@@ -178,27 +177,9 @@ def notas(request):
 
 
 def situacionalumnos(request):
-    return render(request, "situacionalumnos.html")
-
-def anotaciones(request, alumno_id):
-    # Encuentra el alumno en función del ID
-    try:
-        alumno = Alumno.objects.get(id=alumno_id)
-    except Alumno.DoesNotExist:
-        return render(request, "anotaciones.html", {'error': 'No se encontró al alumno'})
-
-    if request.method == 'POST':
-        tipo_anotacion = request.POST.get('tipoAnotacion')
-        comentario = request.POST.get('comentario')
-
-        # Crea una nueva anotación y guárdala en la base de datos
-        anotacion = Anotacion(alumno=alumno, tipo_anotacion=tipo_anotacion, comentario=comentario)
-        anotacion.save()
-
-        return JsonResponse({'success': True})
-
-    return render(request, "anotaciones.html", {'alumno': alumno})
-
+    return render(request,"situacionalumnos.html")
+def anotaciones(request):
+    return render(request,"anotaciones.html")
 def comunicado(request):
     if request.method == 'POST':
         tipoComunicado = request.POST.get('tipoComunicado')

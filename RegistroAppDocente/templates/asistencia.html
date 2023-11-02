@@ -6,6 +6,8 @@
 {% block contenedor %}
 
 <body>
+    <form method="post" action="{% url 'ASIS' clase.id %}">
+        {% csrf_token %}
     <div class="container mt-5">
         <h1>Lista de Asistencia</h1>
         <table class="table">
@@ -30,18 +32,18 @@
                     <td>{{ student.calcular_edad }}</td>
                     <td>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="asistencia_{{ student.id }}" id="presente_{{ student.id }}" value="presente">
+                            <input class="form-check-input" type="radio" name="asistencia" value="presente">
                             <label class="form-check-label" for="presente_{{ student.id }}">
                                 Presente
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="asistencia_{{ student.id }}" id="ausente_{{ student.id }}" value="ausente">
+                            <input class="form-check-input" type="radio" name="asistencia" value="ausente">
                             <label class="form-check-label" for="ausente_{{ student.id }}">
                                 Ausente
                             </label>
-                        </div>
-                    </td>
+                        </div>                                             
+                    </td>                    
                 </tr>
                 {% endfor %}
             </tbody>
@@ -60,24 +62,17 @@
                 </button>                
             </div>
             <div class="col-12 col-md-6">
-                <button class="btn btn-danger btn-block" type="button" onclick="terminarClase()" id="terminarClase">
-                    Terminar Clase
-                </button>
+                {% csrf_token %}
+                <a class="btn btn-danger btn-block" data-clase-id="{{ clase.id }}" data-terminarclase-url="{% url 'terminar_clase' %}" data-listaasistencia-url="{% url 'LASIS' %}" onclick="terminarClase(this)">Terminar Clase</a>
             </div>
         </div>
         <div id="codigoQR" class="collapse mt-3">
             <div id="qr-codes"></div>
         </div>     
     </div>
+</form>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <script>
-        // Define qrDataArray utilizando Django para pasar los datos necesarios
-        var qrDataArray = [
-            // Tus datos para generar los códigos QR aquí
-            "idalumno: 1,asistencia:presente;hora:15:50;fecha:03/11/2023",
-            // Otros datos aquí
-        ];
-    </script>
+
 </body>
 </html>
 {% endblock contenedor %}

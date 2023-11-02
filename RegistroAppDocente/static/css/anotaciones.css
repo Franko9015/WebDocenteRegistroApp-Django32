@@ -7,6 +7,20 @@
     margin-right: 10px; 
 }
 
+#codigoQR {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 20px; /* Ajusta según sea necesario para separar del contenido superior */
+}
+
+#qr-codes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .container {
     border-radius: 10px; /* Borde redondeado */
     background-color: #1a1a1b22; /* Fondo gris claro */

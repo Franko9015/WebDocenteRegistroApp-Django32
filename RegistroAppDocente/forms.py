@@ -7,4 +7,4 @@ class ComunicadoForm(forms.ModelForm):
         fields = ['titulo', 'contenido', 'tipo_comunicado']
 
 class AsistenciaForm(forms.Form):
-    presente = forms.BooleanField(required=False)
+    asistencia = forms.BooleanField(required=False)

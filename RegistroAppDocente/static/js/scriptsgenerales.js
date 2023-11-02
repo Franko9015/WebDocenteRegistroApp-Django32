@@ -16,11 +16,25 @@ function getCookie(name) {
 
 
 // Esta función se llama cuando se termina una clase
-function terminarClase() {
-    const radios = document.querySelectorAll('input[type="radio"]');
-    const asistenciaCompleta = Array.from(radios).some((radio) => radio.checked);
+function terminarClase(button) {
+    const terminarClaseURL = $(button).data("terminarclase-url");
+    const claseID = $(button).data("clase-id");
+    const csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+    const listaasistenciaURL = $(button).data("listaasistencia-url");
 
-    if (asistenciaCompleta) {
+    // Obtén la asistencia seleccionada
+    const radios = document.querySelectorAll('input[type="radio"]');
+    const asistenciaData = [];
+
+    radios.forEach((radio) => {
+        if (radio.checked) {
+            const studentID = radio.getAttribute("data-student-id");
+            const asistencia = radio.value;
+            asistenciaData.push({ studentID, asistencia });
+        }
+    });
+
+    if (asistenciaData.length > 0) {
         Swal.fire({
             title: '¿Estás seguro de terminar la clase?',
             icon: 'warning',
@@ -29,9 +43,23 @@ function terminarClase() {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire('Clase finalizada con éxito', '', 'success').then(() => {
-                    // Redirecciona a otra página cuando se confirma la terminación de la clase
-                    window.location.href = listaasistenciaURL;
+                $.ajax({
+                    type: 'POST',
+                    url: terminarClaseURL,
+                    data: {
+                        clase_id: claseID,
+                        csrfmiddlewaretoken: csrfToken,
+                        asistencia_data: JSON.stringify(asistenciaData)
+                    },
+                    success: function (response) {
+                        Swal.fire('Clase finalizada con éxito', '', 'success').then(() => {
+                            // Redirige a la página de asistencia después de confirmar la terminación de la clase
+                            window.location.href = listaasistenciaURL;
+                        });
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'No se pudo terminar la clase', 'error');
+                    }
                 });
             }
         });
@@ -43,6 +71,8 @@ function terminarClase() {
         });
     }
 }
+
+
 
 // Esta función está relacionada con el cierre de sesión
 function logout() {
@@ -61,7 +91,7 @@ function logout() {
             // Simula una pausa de 2 segundos (2000 milisegundos)
             setTimeout(function () {
                 // Redirige al usuario a la página de inicio de sesión
-                window.location.href = loginURL; // Reemplaza loginURL con la URL de inicio de sesión
+                window.location.href = "/"; // Reemplaza loginURL con la URL de inicio de sesión
             }, 2000);
         }
     });
@@ -203,7 +233,7 @@ function guardarCambiosNotas() {
             setTimeout(() => {
                 Swal.fire('Notas modificadas con éxito', '', 'success').then(() => {
                     // Redirige a la página de notas
-                    window.location.href = notasURL;
+                    window.location.href = "/notas/";
                 });
             }, 1000); // Cambia 1000 a 3000 para una espera de 3 segundos
         }
@@ -235,7 +265,7 @@ function confirmarAnotacion() {
             success: function () {
                 Swal.fire('Anotación generada con éxito', '', 'success').then(() => {
                     // Redirecciona a la página de cursos después de guardar
-                    window.location.href = listacursosURL;
+                    window.location.href = "/listacursos/";
                 });
             },
             error: function () {
@@ -265,18 +295,18 @@ function reprobarAlumno(button) {
             // Recupera el ID del alumno automáticamente desde el botón
             var alumnoId = button.getAttribute('data-alumno-id');
 
-            // Recupera el token CSRF del botón
-            var csrfToken = button.getAttribute('data-csrf-token');
+            // Recupera el token CSRF del formulario que rodea el botón
+            var csrfToken = document.querySelector('form#reprobar-form-' + alumnoId + ' [name="csrfmiddlewaretoken"]').value;
 
             // Realiza una solicitud AJAX para marcar al alumno como reprobado
             $.ajax({
                 type: 'POST',
                 url: `/reprobar_alumno/${alumnoId}/`,
-                headers: { "X-CSRFToken": csrfToken },  // Incluye el token CSRF en los encabezados
+                data: { csrfmiddlewaretoken: csrfToken },
                 success: function (response) {
                     Swal.fire('Alumno reprobado por inasistencia', '', 'success').then(() => {
-                        // Redirige a la página de inicio utilizando la variable dashboardURL
-                        window.location.href = dashboardURL;
+                        // Redirige al dashboard después de reprobar al alumno
+                        window.location.href = "/dashboard/";
                     });
                 },
                 error: function () {
@@ -288,40 +318,79 @@ function reprobarAlumno(button) {
 }
 
 
-
+    
 
 document.addEventListener('DOMContentLoaded', function () {
     var qrCodesContainer = document.getElementById('qr-codes');
+    var codigoQR = document.getElementById('codigoQR');
+    var qrDataArray = [];
+    var generandoQR = false;
 
-    function generarCodigosQR() {
-        qrCodesContainer.innerHTML = ''; // Limpia cualquier código QR existente
-
-        if (qrDataArray.length === 0) {
-            return; // No hay datos para generar códigos QR
+    function generarCodigoQR() {
+        if (generandoQR) {
+            return; // Evitar generar múltiples códigos al mismo tiempo
         }
 
-        qrDataArray.forEach(function (qrData) {
-            // Crea un nuevo objeto QRious para cada conjunto de datos
-            var qr = new QRious({
-                value: qrData,
-                size: 150 // Ajusta el tamaño del código QR según tus necesidades
-            });
+        generandoQR = true;
+        qrCodesContainer.innerHTML = ''; // Limpia cualquier código QR existente
 
-            // Crea un elemento de imagen para el código QR y agrégalo al contenedor
-            var qrImage = document.createElement('img');
-            qrImage.src = qr.toDataURL('image/png');
-            qrCodesContainer.appendChild(qrImage);
+        qrDataArray = [
+            // Define tus datos para generar los códigos QR aquí
+            "idcurso:1, asistencia:presente, fecha:FECHA_ACTUAL"
+            // Otros datos aquí
+        ];
+
+        // Reemplaza 'FECHA_ACTUAL' con la fecha y hora actual en todos los elementos del array
+        qrDataArray = qrDataArray.map(function (qrData) {
+            return qrData.replace('FECHA_ACTUAL', obtenerFechaActual());
         });
 
-        // Muestra la sección de códigos QR
-        var codigoQR = document.getElementById('codigoQR');
-        codigoQR.classList.add('show');
-        
+        generarSiguienteQR();
     }
 
-    // Agrega un evento de clic al botón para llamar a la función generarCodigosQR
+    function generarSiguienteQR() {
+        if (qrDataArray.length === 0) {
+            generandoQR = false;
+            return; // No quedan datos para generar códigos QR
+        }
+
+        var qrData = qrDataArray.shift();
+
+        // Crea un nuevo objeto QRious con el contenido actualizado
+        var qr = new QRious({
+            value: qrData,
+            size: 700 // Ajusta el tamaño del código QR según tus necesidades
+        });
+
+        // Crea un elemento de imagen para el código QR y agrégalo al contenedor
+        var qrImage = document.createElement('img');
+        qrImage.src = qr.toDataURL('image/png');
+        qrCodesContainer.appendChild(qrImage);
+
+        // Muestra la sección de códigos QR
+        codigoQR.classList.add('show');
+
+        generandoQR = false;
+    }
+
+    // Agrega un evento de clic al botón para llamar a la función generarCodigoQR
     var generarQRButton = document.getElementById('generar-qr-button');
-    generarQRButton.addEventListener('click', generarCodigosQR);
+    generarQRButton.addEventListener('click', generarCodigoQR);
+
+    // Función para obtener la fecha y hora actual en el formato deseado
+    function obtenerFechaActual() {
+        var fecha = new Date();
+        var dia = fecha.getDate();
+        var mes = fecha.getMonth() + 1;
+        var año = fecha.getFullYear();
+        var hora = fecha.getHours();
+        var minutos = fecha.getMinutes();
+        var segundos = fecha.getSeconds();
+
+        var fechaFormateada = dia + '/' + mes + '/' + año + ' ' + hora + ':' + minutos + ':' + segundos;
+
+        return fechaFormateada;
+    }
 });
 
 
@@ -331,20 +400,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
+
+
 // Asigna las URL a variables JavaScript
-var loginURL = "{% url 'LOG' %}";
-var dashboardURL = "{% url 'IND' %}";
-var asistenciaURL = "{% url 'ASIS' %}";
-var listaalumnosURL = "{% url 'LALU' curso.id %}"; 
-var listaasistenciaURL = "{% url 'LASIS' %}";
-var listacursosURL = "{% url 'LCUR' %}";
-var modificarnotasURL = "{% url 'MODN' curso.id %}";
-var notasURL = "{% url 'NON' %}";
-var situacionalumnosURL = "{% url 'SISA' %}";
+var loginURL = "/{% url 'LOG' %}";
+var dashboardURL = "/{% url 'IND' %}";
+var asistenciaURL = "/{% url 'ASIS' %}";
+var listaalumnosURL = "/{% url 'LALU' curso.id %}"; 
+var listaasistenciaURL = "/{% url 'LASIS' %}";
+var listacursosURL = "/{% url 'LCUR' %}";
+var modificarnotasURL = "/{% url 'MODN' curso.id %}";
+var notasURL = "/{% url 'NON' %}";
+var situacionalumnosURL = "/{% url 'SISA' %}";
 var anotacionesURL = "/anotaciones/" + alumno.id + "/";
-var comunicadoURL = "{% url 'comunicado' %}";
-var historialcomunicadosURL = "{% url 'HSC' %}";
-var historialanotacionesURL = "{% url 'HAN' %}";
-var perfilURL = "{% url 'PF' %}";
-var crearClaseURL = "{% url 'crear_clase' %}";
+var comunicadoURL = "/{% url 'comunicado' %}";
+var historialcomunicadosURL = "/{% url 'HSC' %}";
+var historialanotacionesURL = "/{% url 'HAN' %}";
+var perfilURL = "/{% url 'PF' %}";
+var crearClaseURL = "/{% url 'crear_clase' %}";
 var reprobarAlumnoURL = (alumnoId) => `/reprobar_alumno/${alumnoId}/`;

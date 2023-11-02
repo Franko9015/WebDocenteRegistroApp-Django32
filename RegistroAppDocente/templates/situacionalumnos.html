@@ -5,7 +5,6 @@
 <link rel="stylesheet" href="{% static 'css/listadodecursos.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
 <link rel="stylesheet" href="{% static 'css/footer.css' %}">
-
 {% endblock css %}
 
 {% block contenedor %}
@@ -30,11 +29,11 @@
                     <td>{{ alumno.curso.nombrecurso }}</td>
                     <td class="asistencia-baja">{{ alumno.porcentaje_asistencia|default:"0.00" }}%</td>
                     <td>
-                        <form method="post" id="reprobar-form-{{ alumno.id }}">
+                        <form id="reprobar-form-{{ alumno.id }}">
                             {% csrf_token %}
-                            <button class="btn btn-danger" data-alumno-id="{{ alumno.id }}" onclick="reprobarAlumno(this)">Reprobar por Inasistencia</button>
+                            <button type="button" class="btn btn-danger" data-alumno-id="{{ alumno.id }}" onclick="reprobarAlumno(this)">Reprobar por Inasistencia</button>
                         </form>
-                    </td>                                                                      
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -43,4 +42,3 @@
 </body>
 </html>
 {% endblock contenedor %}
-

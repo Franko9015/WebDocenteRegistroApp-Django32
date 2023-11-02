@@ -42,5 +42,9 @@ urlpatterns = [
     path('api/anotaciones/', AnotacionListCreateAPIView().as_view(), name='modelo-list-create'),
     path('api/anotaciones/<int:pk>/', AnotacionRetrieveUpdateDestroyAPIView.as_view(), name='modelo-retrieve-update-destroy'),
     path('crear_clase/', crear_clase, name='crear_clase'),
+    path('terminar_clase/', terminar_clase, name='terminar_clase'),
+    path('incrementar_asistencia/<int:alumno_id>/',incrementar_asistencia, name='incrementar_asistencia'),
+
+
 ]
 

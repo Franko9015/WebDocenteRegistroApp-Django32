@@ -26,6 +26,11 @@ from decimal import Decimal
 from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Count, F, Sum, ExpressionWrapper, FloatField
+from django.db.models import OuterRef, Subquery
+from django.db.models import Count, F, Sum, ExpressionWrapper, FloatField
+from django import forms
+from django.forms import formset_factory
+
 
 # Create your views here.
 def login(request):
@@ -72,49 +77,18 @@ def generate_qr_code(qr_data):
     return buffer.getvalue()
     
 def asistencia(request, clase_id):
-    # Obtener la clase por su ID o mostrar un error 404 si no existe
     clase = get_object_or_404(Clase, pk=clase_id)
-    
-    # Obtener la lista de estudiantes para la clase actual
     students = Alumno.objects.filter(curso=clase.curso)
 
-    # Generar y almacenar los códigos QR para cada estudiante
-    qr_codes = {}
-    for student in students:
-        qr_code = generate_qr_code(student.usera.username)  # Utiliza el campo 'username' del usuario asociado
-        qr_codes[student.id] = qr_code
-
     if request.method == 'POST':
-        # Procesar el formulario de asistencia
-        form = AsistenciaForm(request.POST)
-        if form.is_valid():
+        asistencia = request.POST.get('asistencia')
+        if asistencia == 'presente':
             for student in students:
-                # Obtener el campo de asistencia del formulario para el estudiante actual
-                presente_field = f"presente_{student.id}"
-                ausente_field = f"ausente_{student.id}"
-
-                # Verificar si el estudiante ha sido marcado como presente o ausente
-                if form.cleaned_data[presente_field]:
-                    student.asistencias += 1
-                elif form.cleaned_data[ausente_field]:
-                    # Si se marca como ausente, no hacer nada, ya que el valor predeterminado es 0 asistencias
-                    pass
-                else:
-                    # Manejar errores si es necesario
-                    pass
-
-                # Guardar el estudiante actualizado en la base de datos
+                student.asistencias += 1
                 student.save()
-
-            # Redirigir o mostrar un mensaje de éxito
-            return redirect('listaasistencia')
+        return redirect('listaasistencia')
     
-    else:
-        # Crear un formulario de asistencia vacío
-        form = AsistenciaForm()
-
-    # Renderizar la plantilla con los formularios de asistencia y los códigos QR
-    return render(request, "asistencia.html", {"students": students, "clase": clase, "form": form, "qr_codes": qr_codes})
+    return render(request, "asistencia.html", {"students": students, "clase": clase})
 
 
 def listaalumnos(request, curso_id):
@@ -131,7 +105,11 @@ def listaalumnos(request, curso_id):
 
 def listaasistencia(request):
     cursos = Curso.objects.all().annotate(
-        cantidad_alumnos=Count('alumno'),
+        cantidad_alumnos=Subquery(
+            Alumno.objects.filter(curso=OuterRef('pk')).values('curso').annotate(
+                num_alumnos=Count('curso')
+            ).values('num_alumnos')[:1]
+        ),
         total_clases=Count('clase'),
         total_asistencias=Sum(F('alumno__asistencias')),
         porcentaje_asistencia=ExpressionWrapper(
@@ -245,14 +223,14 @@ def reprobar_alumno(request, alumno_id):
         alumno = Alumno.objects.get(pk=alumno_id)
         
         # Realizar las acciones necesarias para marcar al alumno como reprobado (por ejemplo, actualizar un campo en el modelo Alumno)
-        alumno.reprobado = True
+        alumno.Reprobado = True
         alumno.save()
         
-        # Redirigir a la página de inicio o a la página de situacionalumnos
-        return redirect('IND')  # Reemplaza 'inicio' con la URL a la que deseas redirigir
+        return JsonResponse({'success': True})
     except Alumno.DoesNotExist:
-        return redirect('SISA')
-
+        return JsonResponse({'success': False})
+    
+    
 def situacionalumnos(request):
     # Obtener la lista de alumnos con menos del 70% de asistencia que aún no han sido reprobados
     alumnos_reprobados = Alumno.objects.filter(Reprobado=False)
@@ -317,6 +295,41 @@ def crear_clase(request):
         return JsonResponse({'message': 'Clase creada exitosamente', 'redirect': asistencia_url})
     else:
         return JsonResponse({'error': 'Solicitud no válida'}, status=400)
+
+@csrf_protect
+def terminar_clase(request):
+    if request.method == 'POST':
+        clase_id = request.POST.get('clase_id')
+        try:
+            # Asegúrate de obtener la clase correspondiente
+            clase = Clase.objects.get(pk=clase_id)
+            
+            # Marca la clase como finalizada y no iniciada
+            clase.clase_iniciada = False
+            clase.clase_finalizada = True
+            clase.save()
+            
+            # Construye la URL de redirección
+            listaasistenciaURL = reverse('LASIS')  # Asegúrate de que 'LASIS' sea el nombre correcto de tu URL
+            return JsonResponse({'message': 'Clase finalizada con éxito', 'redirect': listaasistenciaURL})
+        except Clase.DoesNotExist:
+            return JsonResponse({'error': 'Clase no encontrada'}, status=404)
+    else:
+        return JsonResponse({'error': 'Solicitud no válida'}, status=400)
+from django.http import JsonResponse
+
+def incrementar_asistencia(request, alumno_id):
+    try:
+        # Obtener al alumno de la base de datos
+        alumno = Alumno.objects.get(pk=alumno_id)
+        
+        # Incrementar la asistencia del alumno
+        alumno.asistencias += 1
+        alumno.save()
+        
+        return JsonResponse({'success': True})
+    except Alumno.DoesNotExist:
+        return JsonResponse({'success': False})
 
 #####################################-----------METODOS API-------------#########################################################################
 

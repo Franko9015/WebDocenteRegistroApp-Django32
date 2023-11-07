@@ -185,9 +185,6 @@ def notas(request):
     return render(request, "notas.html", {'cursos': cursos})
 
 
-def situacionalumnos(request):
-    return render(request, "situacionalumnos.html")
-
 def anotaciones(request, alumno_id):
     # Encuentra el alumno en función del ID
     try:
@@ -240,22 +237,25 @@ def reprobar_alumno(request, alumno_id):
     
     
 def situacionalumnos(request):
-    # Obtener la lista de alumnos con menos del 70% de asistencia que aún no han sido reprobados
-    alumnos_reprobados = Alumno.objects.filter(Reprobado=False)
+    alumnos = Alumno.objects.filter(Reprobado=False).annotate(
+        total_clases=Subquery(
+            Clase.objects.filter(curso=OuterRef('curso')).values('curso').annotate(
+                num_clases=Count('curso')
+            ).values('num_clases')[:1]
+        ),
+        porcentaje_asistencia=ExpressionWrapper(
+            (F('asistencias') / (F('total_clases') * 1.0)) * 100,
+            output_field=FloatField()
+        )
+    )
 
-    for alumno in alumnos_reprobados:
-        total_clases_programadas = Clase.objects.filter(
-            curso=alumno.curso,
-            periodo_semestral__fecha_inicio__lte=alumno.fecha_nacimiento,
-            periodo_semestral__fecha_fin__gte=alumno.fecha_nacimiento
-        ).count()
+    # Filtra a los alumnos con un porcentaje de asistencia inferior al 70%
+    alumnos_reprobados = alumnos.filter(porcentaje_asistencia__lt=70)
 
-        if total_clases_programadas > 0:
-            alumno.porcentaje_asistencia = (alumno.asistencias / total_clases_programadas) * 100
-        else:
-            alumno.porcentaje_asistencia = 0.0
+    return render(request, "situacionalumnos.html", {"alumnos_reprobados": alumnos_reprobados})
 
-    return render(request, "situacionalumnos.html", {'alumnos_reprobados': alumnos_reprobados})
+
+
 
 @login_required
 def perfilprofesor(request):

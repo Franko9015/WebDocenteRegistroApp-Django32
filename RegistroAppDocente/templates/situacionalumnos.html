@@ -27,7 +27,7 @@
                     <td><img src="{% static 'img/fotodefault.png' %}" class="rounded-circle" width="55"></td>
                     <td>{{ alumno.usera.first_name }} {{ alumno.usera.last_name }}</td>
                     <td>{{ alumno.curso.nombrecurso }}</td>
-                    <td class="asistencia-baja">{{ alumno.porcentaje_asistencia|default:"0.00" }}%</td>
+                    <td class="asistencia-baja">{{ alumno.porcentaje_asistencia|floatformat:"0" }}%</td>
                     <td>
                         <form id="reprobar-form-{{ alumno.id }}">
                             {% csrf_token %}

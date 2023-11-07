@@ -73,18 +73,13 @@ class Alumno(models.Model):
 
     def calcular_porcentaje_asistencia(self):
         # Obtén todas las clases del curso del alumno
-        clases_del_curso = Clase.objects.filter(curso=self.curso)
-        
-        # Filtra las clases en función de la fecha de nacimiento del alumno
-        clases_programadas = clases_del_curso.filter(
-            periodo_semestral__fecha_inicio__lte=self.fecha_nacimiento,
-            periodo_semestral__fecha_fin__gte=self.fecha_nacimiento
-        )
-        
-        total_clases_programadas = clases_programadas.count()
+        total_clases_programadas = Clase.objects.filter(curso=self.curso).count()
+
         if total_clases_programadas > 0:
             return (self.asistencias / total_clases_programadas) * 100
-        return 0
+        else:
+            return 0.0
+
 
 
 class Profesor(models.Model):

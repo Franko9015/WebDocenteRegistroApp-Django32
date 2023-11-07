@@ -15,7 +15,30 @@ function getCookie(name) {
 }
 
 
-// Esta función se llama cuando se termina una clase
+function marcarPresente(radio) {
+    var alumnoId = radio.dataset.alumnoId;
+    var url = "/incrementar_asistencia/" + alumnoId + "/";
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            'alumno_id': alumnoId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Asistencia incrementada con éxito");
+        } else {
+            console.log("Error al incrementar la asistencia");
+        }
+    });
+}
+
 function terminarClase(button) {
     const terminarClaseURL = $(button).data("terminarclase-url");
     const claseID = $(button).data("clase-id");
@@ -392,9 +415,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return fechaFormateada;
     }
 });
-
-
-
 
 
 

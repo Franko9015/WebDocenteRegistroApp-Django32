@@ -20,7 +20,7 @@
                 <tr>
                     <td>{{ curso.nombrecurso }}</td>
                     <td>{{ curso.cantidad_alumnos }}</td>
-                    <td>{{ curso.porcentaje_asistencia|default:"0.00" }}%</td>
+                    <td>{{ curso.porcentaje_asistencia|floatformat:"0" }}%</td>
                     <td>
                         <form id="crearClaseForm" data-curso-id="{{ curso.id }}">
                             {% csrf_token %}

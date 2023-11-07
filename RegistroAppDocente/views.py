@@ -27,7 +27,8 @@ from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Count, F, Sum, ExpressionWrapper, FloatField
 from django.db.models import OuterRef, Subquery
-from django.db.models import Count, F, Sum, ExpressionWrapper, FloatField
+from django.db.models import Count, Sum, F, FloatField, ExpressionWrapper, Subquery, OuterRef
+
 from django import forms
 from django.forms import formset_factory
 
@@ -81,14 +82,15 @@ def asistencia(request, clase_id):
     students = Alumno.objects.filter(curso=clase.curso)
 
     if request.method == 'POST':
-        asistencia = request.POST.get('asistencia')
-        if asistencia == 'presente':
-            for student in students:
+        for student in students:
+            asistencia = request.POST.get(f'asistencia_{student.id}')
+            if asistencia == 'presente':
                 student.asistencias += 1
                 student.save()
         return redirect('listaasistencia')
     
     return render(request, "asistencia.html", {"students": students, "clase": clase})
+
 
 
 def listaalumnos(request, curso_id):
@@ -111,13 +113,19 @@ def listaasistencia(request):
             ).values('num_alumnos')[:1]
         ),
         total_clases=Count('clase'),
-        total_asistencias=Sum(F('alumno__asistencias')),
+        total_asistencias=Subquery(
+            Alumno.objects.filter(curso=OuterRef('pk')).values('curso').annotate(
+                num_asistencias=Sum('asistencias')
+            ).values('num_asistencias')[:1]
+        ),
         porcentaje_asistencia=ExpressionWrapper(
-            (F('total_asistencias') / (F('cantidad_alumnos') * F('total_clases'))) * 100,
+            (F('total_asistencias') / (F('total_clases') * 1.0 * F('cantidad_alumnos'))) * 100,
             output_field=FloatField()
         )
     )
     return render(request, "listadoasistencia.html", {'cursos': cursos})
+
+
 
 
 
@@ -318,18 +326,16 @@ def terminar_clase(request):
         return JsonResponse({'error': 'Solicitud no válida'}, status=400)
 from django.http import JsonResponse
 
-def incrementar_asistencia(request, alumno_id):
+def incrementar_asistencia(request):
+    alumno_id = request.GET.get('alumno_id')
     try:
-        # Obtener al alumno de la base de datos
         alumno = Alumno.objects.get(pk=alumno_id)
-        
-        # Incrementar la asistencia del alumno
         alumno.asistencias += 1
         alumno.save()
-        
         return JsonResponse({'success': True})
     except Alumno.DoesNotExist:
         return JsonResponse({'success': False})
+
 
 #####################################-----------METODOS API-------------#########################################################################
 

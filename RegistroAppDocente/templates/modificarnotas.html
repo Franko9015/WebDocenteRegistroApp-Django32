@@ -23,15 +23,17 @@
                 </thead>
                 <tbody>
                     {% for alumno in alumnos %}
-                    <tr>
-                        <td>{{alumno.usera.first_name}} {{alumno.usera.last_name}}</td>
-                        <td><input type="number" class="form-control" name="parcial1_{{ alumno.id }}" value="{{ alumno.notas.parcial1 }}"></td>
-                        <td><input type="number" class="form-control" name="parcial2_{{ alumno.id }}" value="{{ alumno.notas.parcial2 }}"></td>
-                        <td><input type="number" class="form-control" name="parcial3_{{ alumno.id }}" value="{{ alumno.notas.parcial3 }}"></td>
-                        <td><input type="number" class="form-control" name="parcial4_{{ alumno.id }}" value="{{ alumno.notas.parcial4 }}"></td>
-                        <td><input type="number" class="form-control" name="examen_final_{{ alumno.id }}" value="{{ alumno.notas.examen_final }}"></td>
-                    </tr>
+                    {% for nota in alumno.notas_set.all %}
+                        <tr>
+                            <td>{{alumno.usera.first_name}} {{alumno.usera.last_name}}</td>
+                            <td><input type="number" step="0.1" min="1.0" max="7.0" class="form-control" name="parcial1_{{ nota.id }}" value="{{ nota.parcial1 }}"></td>
+                            <td><input type="number" step="0.1" min="1.0" max="7.0" class="form-control" name="parcial2_{{ nota.id }}" value="{{ nota.parcial2 }}"></td>
+                            <td><input type="number" step="0.1" min="1.0" max="7.0" class="form-control" name="parcial3_{{ nota.id }}" value="{{ nota.parcial3 }}"></td>
+                            <td><input type="number" step="0.1" min="1.0" max="7.0" class="form-control" name="parcial4_{{ nota.id }}" value="{{ nota.parcial4 }}"></td>
+                            <td><input type="number" step="0.1" min="1.0" max="7.0" class="form-control" name="examen_final_{{ nota.id }}" value="{{ nota.examen_final }}"></td>
+                        </tr>
                     {% endfor %}
+                {% endfor %}                
                 </tbody>
             </table>
             <button type="submit" class="btn btn-primary">Guardar Cambios</button>

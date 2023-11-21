@@ -138,11 +138,12 @@ def modificarnotas(request, curso_id):
     curso = Curso.objects.get(id=curso_id)
 
     # Obtén una lista de alumnos en este curso
-    alumnos = Alumno.objects.filter(curso=curso)
+    alumnos = Alumno.objects.filter(curso=curso).prefetch_related('notas_set')
 
     if request.method == 'POST':
         # Maneja el formulario de modificación de notas y guarda los cambios en la base de datos
         for alumno in alumnos:
+            # Obtiene los valores de las notas del formulario
             parcial1 = request.POST.get(f'parcial1_{alumno.id}')
             parcial2 = request.POST.get(f'parcial2_{alumno.id}')
             parcial3 = request.POST.get(f'parcial3_{alumno.id}')
@@ -151,13 +152,14 @@ def modificarnotas(request, curso_id):
 
             # Realiza la validación de los valores antes de guardarlos
             try:
+                # Convierte los valores a Decimal si existen, de lo contrario, establece en None
                 parcial1 = Decimal(parcial1) if parcial1 else None
                 parcial2 = Decimal(parcial2) if parcial2 else None
                 parcial3 = Decimal(parcial3) if parcial3 else None
                 parcial4 = Decimal(parcial4) if parcial4 else None
                 examen_final = Decimal(examen_final) if examen_final else None
             except (ValueError, TypeError):
-                # Establece un mensaje de error
+                # Establece un mensaje de error si los valores no son válidos
                 error_message = "Hubo un error al procesar los valores de las notas. Asegúrate de ingresar números válidos."
                 messages.error(request, error_message)
             else:
@@ -179,9 +181,15 @@ def modificarnotas(request, curso_id):
 
     return render(request, "modificarnotas.html", {'curso': curso, 'alumnos': alumnos})
 
-def notas(request):
-    cursos = Curso.objects.all()  # Obtén una lista de todos los cursos
 
+def notas(request):
+    cursos = Curso.objects.all().annotate(
+        cantidad_alumnos=Subquery(
+            Alumno.objects.filter(curso=OuterRef('pk')).values('curso').annotate(
+                num_alumnos=Count('curso')
+            ).values('num_alumnos')[:1]
+        )
+    )
     return render(request, "notas.html", {'cursos': cursos})
 
 

@@ -60,7 +60,7 @@ class Alumno(models.Model):
     id = models.AutoField(primary_key=True)
     usera = models.OneToOneField(User, on_delete=models.CASCADE, default=None, null=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
-    foto_alumno = models.ImageField(upload_to='foto', null=True, blank=True, default='foto/fotodefault.png')
+    foto_alumno = models.ImageField(upload_to='foto', null=True, blank=True, default='media/foto/fotodefault.png')
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, default=None, null=True)
     asistencias = models.PositiveIntegerField(default=0)
     Reprobado = models.BooleanField(default=False)
@@ -85,7 +85,7 @@ class Alumno(models.Model):
 class Profesor(models.Model):
     id = models.AutoField(primary_key=True)
     userp = models.OneToOneField(User, on_delete=models.CASCADE, default=None, null=True)
-    foto_perfil = models.ImageField(upload_to='foto', null=True, blank=True, default='foto/fotodefault.png')
+    foto_perfil = models.ImageField(upload_to='foto', null=True, blank=True, default='media/foto/fotodefault.png')
     cursos = models.ManyToManyField(Curso)
     titulo = models.CharField(max_length=100)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
